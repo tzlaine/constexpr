@@ -210,19 +210,6 @@ namespace std {
 
   template<auto X>
     inline constexpr constexpr_v<remove_const_t<decltype(X)>, X> c_{};
-
-  template<typename T, typename ValueType>
-    struct well_formed_static_constexpr_value {
-      static constexpr ValueType value = T::value;
-    };
-  template<typename T>
-    struct well_formed_static_constexpr_value<T, void> {
-      static constexpr auto value = T::value;
-    };
-
-  template<typename T, typename ValueType = void>
-    concept constexpr_value =
-      requires { well_formed_static_constexpr_value<T, ValueType>::value; };
 }
 
 // increment and decrement operators intentionally left out
@@ -282,43 +269,6 @@ void g(X<T> x)
     x.f(std::c_<4.f>);
     x.f(std::c_<foo>);
     x.f(std::c_<my_complex(1.f, 1.f)>);
-}
-
-struct my_type { constexpr static int value = 42; };
-
-template<typename T, T Value>
-struct my_constant
-{
-    static constexpr T value = Value;
-    
-    // Other API ...
-};
-
-auto plus(std::constexpr_value<int> auto x, std::constexpr_value<int> auto y)
-{ return std::c_<x.value + y.value>; }
-
-void h()
-{
-    // All results are equal to std::c_<1>.
-    auto result_1 = plus(std::c_<0>, std::c_<1>);                        // Ok.
-    auto result_2 = plus(std::c_<0>, std::integral_constant<int, 1>{});  // Also ok.
-    auto result_3 = plus(std::c_<0>, my_constant<int, 1>{});             // Still ok.
-
-    assert(result_1 == 1);
-    assert(result_2 == 1);
-    assert(result_3 == 1);
-}
-
-auto operator+(std::constexpr_value auto x, std::constexpr_value auto y)
-    -> decltype(std::c_<decltype(x)::value + decltype(y)::value>)
-{ return std::c_<x.value + y.value>; }
-
-void i()
-{
-    // Equal to std::c_<1>.
-    auto result = std::integral_constant<int, 0>{} + my_constant<int, 1>{};
-
-    assert(result == 1);
 }
 
 namespace parse {
@@ -386,17 +336,12 @@ int main()
     constexpr my_nttp nttp;
     auto custom = std::c_<nttp>;
     // +custom; // Ill-formed!
-     auto r = custom(x, y);
- 
-     std::cout << r << "\n";
- 
-     auto f = std::c_<strlit("foo")>;
-     std::cout << f << "\n";
- 
-     std::cout << my_type{} - std::c_<42> << "\n";
- 
-     ::h();
-     ::i();
+    auto r = custom(x, y);
+
+    std::cout << r << "\n";
+
+    auto f = std::c_<strlit("foo")>;
+    std::cout << f << "\n";
 
     {
         constexpr parse::str_parser p1{strlit("neg")};
