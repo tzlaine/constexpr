@@ -22,26 +22,24 @@ namespace std {
     constexpr operator value_type() const { return X; }
     static constexpr value_type value = X;
 
-    constexpr auto operator+() const
-      requires requires { constexpr_v<+X>{}; } { return constexpr_v<+X>{}; }
-    constexpr auto operator-() const
-      requires requires { constexpr_v<-X>{}; } { return constexpr_v<-X>{}; }
-    constexpr auto operator~() const
-      requires requires { constexpr_v<~X>{}; } { return constexpr_v<~X>{}; }
-    constexpr auto operator!() const
-      requires requires { constexpr_v<!X>{}; } { return constexpr_v<!X>{}; }
-    constexpr auto operator&() const
-      requires requires { constexpr_v<&X>{}; } { return constexpr_v<&X>{}; }
-    constexpr auto operator*() const
-      requires requires { constexpr_v<*X>{}; } { return constexpr_v<*X>{}; }
+    template<auto Y = X>
+      constexpr auto operator+() const -> constexpr_v<+Y> { return {}; }
+    template<auto Y = X>
+      constexpr auto operator-() const -> constexpr_v<-Y> { return {}; }
+    template<auto Y = X>
+      constexpr auto operator~() const -> constexpr_v<~Y> { return {}; }
+    template<auto Y = X>
+      constexpr auto operator!() const -> constexpr_v<!Y> { return {}; }
+    template<auto Y = X>
+      constexpr auto operator&() const -> constexpr_v<&Y> { return {}; }
+    template<auto Y = X>
+      constexpr auto operator*() const -> constexpr_v<*Y> { return {}; }
 
     template<class... Args>
-      constexpr auto operator()(Args... args) const -> constexpr_v<X(Args::value...)>
-        { return {}; }
+      constexpr auto operator()(Args... args) const -> constexpr_v<X(Args::value...)> { return {}; }
 #if 0
     template<class... Args>
-      constexpr auto operator[](Args... args) const -> constexpr_v<X[Args::value...]>
-        { return {}; }
+      constexpr auto operator[](Args... args) const -> constexpr_v<X[Args::value...]> { return {}; }
 #endif
 
     template<class U>
