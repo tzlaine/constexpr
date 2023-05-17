@@ -249,8 +249,14 @@ struct strlit
 template<typename T>
 struct my_complex
 {
+    constexpr my_complex(float r, float i) : re{r}, im{i} {}
     T re, im;
 };
+
+#if __clang__
+template<typename T>
+my_complex(T, T) -> my_complex<T>;
+#endif
 
 template<typename T>
 struct X
@@ -265,8 +271,10 @@ void g(X<T> x)
 {
     x.f(std::c_<1>);
     x.f(std::c_<2uz>);
+#if !__clang__
     x.f(std::c_<3.0>);
     x.f(std::c_<4.f>);
+#endif
     x.f(std::c_<foo>);
     x.f(std::c_<my_complex(1.f, 1.f)>);
 }
@@ -279,6 +287,7 @@ namespace parse {
     template<size_t N>
     struct str_parser
     {
+        constexpr explicit str_parser(strlit<N> s) : str_{s} {}
         template<size_t M>
         constexpr bool operator()(strlit<M> lit) const
         {
