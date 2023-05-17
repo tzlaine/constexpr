@@ -5,16 +5,16 @@
 
 
 namespace std {
-  template<auto X>
+    template<auto X, typename T = decltype(X)>
     struct constexpr_v;
 
   // exposition only
   template<class T>
     constexpr bool not_constexpr_v = true;
-  template<auto X>
-    constexpr bool not_constexpr_v<constexpr_v<X>> = false;
+    template<auto X, typename T>
+    constexpr bool not_constexpr_v<constexpr_v<X, T>> = false;
 
-  template<auto X>
+  template<auto X, typename>
   struct constexpr_v {
     using value_type = decltype(X);
     using type = constexpr_v;
@@ -294,6 +294,9 @@ int main()
     auto r = custom(x, y);
 
     std::cout << r << "\n";
+
+    auto f = std::c_<strlit("foo")>;
+    std::cout << f << "\n";
 
     {
         constexpr parse::str_parser p1{strlit("neg")};
