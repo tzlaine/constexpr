@@ -1,11 +1,12 @@
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <iostream>
 #include <string_view>
 
 
 namespace std {
-  template<auto X, class T = remove_const_t<decltype(X)>>
+  template<auto X, class T = remove_cvref_t<decltype(X)>>
     struct constexpr_v;
 
   // exposition only
@@ -46,10 +47,8 @@ namespace std {
 
     template<class... Args>
       constexpr auto operator()(Args... args) const -> constexpr_v<X(Args::value...)> { return {}; }
-#if 0
     template<class... Args>
       constexpr auto operator[](Args... args) const -> constexpr_v<X[Args::value...]> { return {}; }
-#endif
 
     template <lhs_constexpr_param<type> U, constexpr_param V>
       friend constexpr constexpr_v<U::value + V::value> operator+(U, V) { return {}; }
@@ -282,6 +281,11 @@ int main()
         derived_from_constexpr_v d;
         also_derived_from_constexpr_v a;
         auto e = d + a;
+    }
+
+    {
+        constexpr std::array<int, 4> array = {1, 2, 3, 4};
+        std::c_<array>[std::c_<1>];
     }
 
     {
