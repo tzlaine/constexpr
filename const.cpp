@@ -5,22 +5,31 @@
 
 
 namespace std {
-    template<auto X, typename T = decltype(X)>
+  template<auto X, class T = remove_const_t<decltype(X)>>
     struct constexpr_v;
 
   // exposition only
-  template<class T>
-    constexpr bool not_constexpr_v = true;
-    template<auto X, typename T>
-    constexpr bool not_constexpr_v<constexpr_v<X, T>> = false;
+  template <class T>
+    concept constexpr_value =
+      requires { typename constexpr_v<T::value>; } and not is_member_pointer_v<decltype(&T::value)>;
+  template <class T>
+    concept derived_from_constexpr = derived_from<T, constexpr_v<T::value>>;
+  template <class T, class SelfT>
+    concept lhs_constexpr_value = constexpr_value<T> and (derived_from<T, SelfT> or not derived_from_constexpr<T>);
 
-  template<auto X, typename>
+  template<auto X, class>
   struct constexpr_v {
     using value_type = decltype(X);
     using type = constexpr_v;
 
     constexpr operator value_type() const { return X; }
     static constexpr value_type value = X;
+
+#define LEWG_SAYS_SO 1
+#if LEWG_SAYS_SO
+    template <constexpr_value T>
+      constexpr constexpr_v<X = T::value> operator=(T) const { return {}; }
+#endif
 
     template<auto Y = X>
       constexpr auto operator+() const -> constexpr_v<+Y> { return {}; }
@@ -42,114 +51,75 @@ namespace std {
       constexpr auto operator[](Args... args) const -> constexpr_v<X[Args::value...]> { return {}; }
 #endif
 
-    template<class U>
-      friend constexpr constexpr_v<(X << U::value)> operator<<(constexpr_v, U) { return {}; }
-    template<class U>
-      requires not_constexpr_v<U>
-        friend constexpr constexpr_v<(U::value << X)> operator<<(U, constexpr_v) { return {}; }
-    template<class U>
-      friend constexpr constexpr_v<(X >> U::value)> operator>>(constexpr_v, U) { return {}; }
-    template<class U>
-      requires not_constexpr_v<U>
-        friend constexpr constexpr_v<(U::value >> X)> operator>>(U, constexpr_v) { return {}; }
-    template<class U>
-      friend constexpr constexpr_v<(X * U::value)> operator*(constexpr_v, U) { return {}; }
-    template<class U>
-      requires not_constexpr_v<U>
-        friend constexpr constexpr_v<(U::value * X)> operator*(U, constexpr_v) { return {}; }
-    template<class U>
-      friend constexpr constexpr_v<(X / U::value)> operator/(constexpr_v, U) { return {}; }
-    template<class U>
-      requires not_constexpr_v<U>
-        friend constexpr constexpr_v<(U::value / X)> operator/(U, constexpr_v) { return {}; }
-    template<class U>
-      friend constexpr constexpr_v<(X % U::value)> operator%(constexpr_v, U) { return {}; }
-    template<class U>
-      requires not_constexpr_v<U>
-        friend constexpr constexpr_v<(U::value % X)> operator%(U, constexpr_v) { return {}; }
-    template<class U>
-      friend constexpr constexpr_v<(X + U::value)> operator+(constexpr_v, U) { return {}; }
-    template<class U>
-      requires not_constexpr_v<U>
-        friend constexpr constexpr_v<(U::value + X)> operator+(U, constexpr_v) { return {}; }
-    template<class U>
-      friend constexpr constexpr_v<(X - U::value)> operator-(constexpr_v, U) { return {}; }
-    template<class U>
-      requires not_constexpr_v<U>
-        friend constexpr constexpr_v<(U::value - X)> operator-(U, constexpr_v) { return {}; }
+    template <lhs_constexpr_value<type> T, constexpr_value U>
+      friend constexpr constexpr_v<T::value + U::value> operator+(T, U) { return {}; }
+    template <lhs_constexpr_value<type> T, constexpr_value U>
+      friend constexpr constexpr_v<T::value - U::value> operator-(T, U) { return {}; }
+    template <lhs_constexpr_value<type> T, constexpr_value U>
+      friend constexpr constexpr_v<T::value * U::value> operator*(T, U) { return {}; }
+    template <lhs_constexpr_value<type> T, constexpr_value U>
+      friend constexpr constexpr_v<T::value / U::value> operator/(T, U) { return {}; }
+    template <lhs_constexpr_value<type> T, constexpr_value U>
+      friend constexpr constexpr_v<T::value % U::value> operator%(T, U) { return {}; }
 
-    template<class U>
-      friend constexpr constexpr_v<(X < U::value)> operator<(constexpr_v, U) { return {}; }
-    template<class U>
-      requires not_constexpr_v<U>
-        friend constexpr constexpr_v<(U::value < X)> operator<(U, constexpr_v) { return {}; }
-    template<class U>
-      friend constexpr constexpr_v<(X > U::value)> operator>(constexpr_v, U) { return {}; }
-    template<class U>
-      requires not_constexpr_v<U>
-        friend constexpr constexpr_v<(U::value > X)> operator>(U, constexpr_v) { return {}; }
-    template<class U>
-      friend constexpr constexpr_v<(X <= U::value)> operator<=(constexpr_v, U) { return {}; }
-    template<class U>
-      requires not_constexpr_v<U>
-        friend constexpr constexpr_v<(U::value <= X)> operator<=(U, constexpr_v) { return {}; }
-    template<class U>
-      friend constexpr constexpr_v<(X >= U::value)> operator>=(constexpr_v, U) { return {}; }
-    template<class U>
-      requires not_constexpr_v<U>
-        friend constexpr constexpr_v<(U::value >= X)> operator>=(U, constexpr_v) { return {}; }
-    template<class U>
-      friend constexpr constexpr_v<(X == U::value)> operator==(constexpr_v, U) { return {}; }
-    template<class U>
-      requires not_constexpr_v<U>
-        friend constexpr constexpr_v<(U::value == X)> operator==(U, constexpr_v) { return {}; }
-    template<class U>
-      friend constexpr constexpr_v<(X != U::value)> operator!=(constexpr_v, U) { return {}; }
-    template<class U>
-      requires not_constexpr_v<U>
-        friend constexpr constexpr_v<(U::value != X)> operator!=(U, constexpr_v) { return {}; }
-    template<class U>
-      friend constexpr constexpr_v<(X <=> U::value)> operator<=>(constexpr_v, U) { return {}; }
-    template<class U>
-      requires not_constexpr_v<U>
-        friend constexpr constexpr_v<(U::value <=> X)> operator<=>(U, constexpr_v) { return {}; }
+    template <lhs_constexpr_value<type> T, constexpr_value U>
+      friend constexpr constexpr_v<(T::value << U::value)> operator<<(T, U) { return {}; }
+    template <lhs_constexpr_value<type> T, constexpr_value U>
+      friend constexpr constexpr_v<(T::value >> U::value)> operator>>(T, U) { return {}; }
+    template <lhs_constexpr_value<type> T, constexpr_value U>
+      friend constexpr constexpr_v<T::value & U::value> operator&(T, U) { return {}; }
+    template <lhs_constexpr_value<type> T, constexpr_value U>
+      friend constexpr constexpr_v<T::value | U::value> operator|(T, U) { return {}; }
+    template <lhs_constexpr_value<type> T, constexpr_value U>
+      friend constexpr constexpr_v<T::value ^ U::value> operator^(T, U) { return {}; }
 
-    template<class U>
-      friend constexpr constexpr_v<(X && U::value)> operator&&(constexpr_v, U) { return {}; }
-    template<class U>
-      requires not_constexpr_v<U>
-        friend constexpr constexpr_v<(U::value && X)> operator&&(U, constexpr_v) { return {}; }
-    template<class U>
-      friend constexpr constexpr_v<(X || U::value)> operator||(constexpr_v, U) { return {}; }
-    template<class U>
-      requires not_constexpr_v<U>
-        friend constexpr constexpr_v<(U::value || X)> operator||(U, constexpr_v) { return {}; }
-    template<class U>
-      friend constexpr constexpr_v<(X & U::value)> operator&(constexpr_v, U) { return {}; }
-    template<class U>
-      requires not_constexpr_v<U>
-        friend constexpr constexpr_v<(U::value & X)> operator&(U, constexpr_v) { return {}; }
-    template<class U>
-      friend constexpr constexpr_v<(X | U::value)> operator|(constexpr_v, U) { return {}; }
-    template<class U>
-      requires not_constexpr_v<U>
-        friend constexpr constexpr_v<(U::value | X)> operator|(U, constexpr_v) { return {}; }
-    template<class U>
-      friend constexpr constexpr_v<(X ^ U::value)> operator^(constexpr_v, U) { return {}; }
-    template<class U>
-      requires not_constexpr_v<U>
-        friend constexpr constexpr_v<(U::value ^ X)> operator^(U, constexpr_v) { return {}; }
+    template <lhs_constexpr_value<type> T, constexpr_value U>
+      friend constexpr constexpr_v<T::value && U::value> operator&&(T, U) { return {}; }
+    template <lhs_constexpr_value<type> T, constexpr_value U>
+      friend constexpr constexpr_v<T::value || U::value> operator||(T, U) { return {}; }
 
-    template<class U>
-      friend constexpr constexpr_v<(X, U::value)> operator,(constexpr_v, U) { return {}; }
-    template<class U>
-      requires not_constexpr_v<U>
-        friend constexpr constexpr_v<(U::value, X)> operator,(U, constexpr_v) { return {}; }
-    template<class U>
-      friend constexpr constexpr_v<(X ->* U::value)> operator->*(constexpr_v, U) { return {}; }
-    template<class U>
-      requires not_constexpr_v<U>
-        friend constexpr constexpr_v<(U::value ->* X)> operator->*(U, constexpr_v) { return {}; }
+    template <lhs_constexpr_value<type> T, constexpr_value U>
+      friend constexpr constexpr_v<(T::value <=> U::value)> operator<=>(T, U) { return {}; }
+    template <lhs_constexpr_value<type> T, constexpr_value U>
+      friend constexpr constexpr_v<(T::value == U::value)> operator==(T, U) { return {}; }
+    template <lhs_constexpr_value<type> T, constexpr_value U>
+      friend constexpr constexpr_v<(T::value != U::value)> operator!=(T, U) { return {}; }
+    template <lhs_constexpr_value<type> T, constexpr_value U>
+      friend constexpr constexpr_v<(T::value < U::value)> operator<(T, U) { return {}; }
+    template <lhs_constexpr_value<type> T, constexpr_value U>
+      friend constexpr constexpr_v<(T::value > U::value)> operator>(T, U) { return {}; }
+    template <lhs_constexpr_value<type> T, constexpr_value U>
+      friend constexpr constexpr_v<(T::value <= U::value)> operator<=(T, U) { return {}; }
+    template <lhs_constexpr_value<type> T, constexpr_value U>
+      friend constexpr constexpr_v<(T::value >= U::value)> operator>=(T, U) { return {}; }
+
+    template <lhs_constexpr_value<type> T, constexpr_value U>
+      friend constexpr constexpr_v<(T::value, U::value)> operator,(T, U) { return {}; }
+    template <lhs_constexpr_value<type> T, constexpr_value U>
+      friend constexpr constexpr_v<(T::value ->* U::value)> operator->*(T, U) { return {}; }
+
+#if LEWG_SAYS_SO
+    template <lhs_constexpr_value<type> T, constexpr_value U>
+      friend constexpr constexpr_v<(T::value += U::value)> operator+=(T, U) { return {}; }
+    template <lhs_constexpr_value<type> T, constexpr_value U>
+      friend constexpr constexpr_v<(T::value -= U::value)> operator-=(T, U) { return {}; }
+    template <lhs_constexpr_value<type> T, constexpr_value U>
+      friend constexpr constexpr_v<(T::value *= U::value)> operator*=(T, U) { return {}; }
+    template <lhs_constexpr_value<type> T, constexpr_value U>
+      friend constexpr constexpr_v<(T::value /= U::value)> operator/=(T, U) { return {}; }
+    template <lhs_constexpr_value<type> T, constexpr_value U>
+      friend constexpr constexpr_v<(T::value %= U::value)> operator%=(T, U) { return {}; }
+    template <lhs_constexpr_value<type> T, constexpr_value U>
+      friend constexpr constexpr_v<(T::value &= U::value)> operator&=(T, U) { return {}; }
+    template <lhs_constexpr_value<type> T, constexpr_value U>
+      friend constexpr constexpr_v<(T::value |= U::value)> operator|=(T, U) { return {}; }
+    template <lhs_constexpr_value<type> T, constexpr_value U>
+      friend constexpr constexpr_v<(T::value ^= U::value)> operator^=(T, U) { return {}; }
+    template <lhs_constexpr_value<type> T, constexpr_value U>
+      friend constexpr constexpr_v<(T::value <<= U::value)> operator<<=(T, U) { return {}; }
+    template <lhs_constexpr_value<type> T, constexpr_value U>
+      friend constexpr constexpr_v<(T::value >>= U::value)> operator>>=(T, U) { return {}; }
+#endif
   };
 
   template<auto X>
@@ -263,6 +233,12 @@ namespace parse {
     };
 }
 
+struct derived_from_constexpr_v : std::constexpr_v<42>
+{};
+
+struct also_derived_from_constexpr_v : std::constexpr_v<2>
+{};
+
 int main()
 {
     auto x = std::c_<42>;
@@ -295,6 +271,18 @@ int main()
 
     auto f = std::c_<strlit("foo")>;
     std::cout << f << "\n";
+
+    {
+        derived_from_constexpr_v d;
+        auto e = d + d;
+        auto f = d + std::c_<1>;
+        auto g = std::c_<1> + d;
+    }
+    {
+        derived_from_constexpr_v d;
+        also_derived_from_constexpr_v a;
+        auto e = d + a;
+    }
 
     {
         constexpr parse::str_parser p1{strlit("neg")};
