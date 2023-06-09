@@ -5,6 +5,10 @@
 #include <string_view>
 
 
+#define EXAMINE_STREAM_INSERTION_ERRORS 0
+
+#if !EXAMINE_STREAM_INSERTION_ERRORS
+
 namespace std {
   template<auto X, class T = remove_cvref_t<decltype(X)>>
     struct constexpr_v;
@@ -12,7 +16,7 @@ namespace std {
   // exposition only
   template <class T>
     concept constexpr_param =
-      requires { typename constexpr_v<T::value>; } && !is_member_pointer_v<decltype(&T::value)>;
+      !is_member_pointer_v<decltype(&T::value)> && requires { typename constexpr_v<T::value>; };
   template <class T>
     concept derived_from_constexpr = derived_from<T, constexpr_v<T::value>>;
   template <class T, class SelfT>
@@ -47,10 +51,8 @@ namespace std {
 
     template<class... Args>
       constexpr constexpr_v<X(Args::value...)> operator()(Args... args) const { return {}; }
-#if 0
     template<class... Args>
       constexpr constexpr_v<X[Args::value...]> operator[](Args... args) const { return {}; }
-#endif
 
     template <lhs_constexpr_param<type> U, constexpr_param V>
       friend constexpr constexpr_v<U::value + V::value> operator+(U, V) { return {}; }
@@ -159,7 +161,7 @@ struct strlit
     char bytes_[N];
 };
 
-// g++ ./const.cpp -o const.bin -DDEBUG -std=c++23 && ./const.bin
+// g++-13 ./const.cpp -o const.bin -DDEBUG -std=c++23 && ./const.bin
 
 template<typename T>
 struct my_complex
@@ -240,8 +242,37 @@ struct derived_from_constexpr_v : std::constexpr_v<42>
 struct also_derived_from_constexpr_v : std::constexpr_v<2>
 {};
 
+struct Test
+{
+    int value = 1;
+
+    constexpr int operator()(int a, int b) const { return a + b + value; }
+
+    constexpr int operator[](auto... args) const
+    {
+        return (value + ... + args);
+    }
+
+    constexpr bool operator==(const Test &) const = default;
+};
+
+template<auto Expected, std::constexpr_param C>
+void check(C x)
+{
+    static_assert(std::same_as<C, std::constexpr_v<Expected>>);
+    static_assert(C::value == Expected);
+    static_assert(x == Expected);
+    static_assert(x.value == Expected);
+}
+
+#endif // EXAMINE_STREAM_INSERTION_ERRORS
+
+struct foo_type
+{};
+
 int main()
 {
+#if !EXAMINE_STREAM_INSERTION_ERRORS
     auto x = std::c_<42>;
     static_assert(std::is_same_v<decltype(std::c_<42>)::value_type, int>);
 
@@ -315,4 +346,14 @@ int main()
         constexpr bool matches_decr_ = p_(std::c_<strlit("decr")>);
         static_assert(matches_decr_);
     }
+
+    {
+        check<Test{}>(std::c_<Test{}>);
+    }
+
+#else
+
+    std::cout << foo_type{};
+
+#endif
 }
