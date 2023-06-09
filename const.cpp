@@ -29,26 +29,28 @@ namespace std {
 #define LEWG_SAYS_SO 1
 #if LEWG_SAYS_SO
     template <constexpr_param U>
-      constexpr constexpr_v<X = U::value> operator=(U) const { return {}; }
+      constexpr constexpr_v<(X = U::value)> operator=(U) const { return {}; }
 #endif
 
     template<auto Y = X>
-      constexpr auto operator+() const -> constexpr_v<+Y> { return {}; }
+      constexpr constexpr_v<+Y> operator+() const { return {}; }
     template<auto Y = X>
-      constexpr auto operator-() const -> constexpr_v<-Y> { return {}; }
+      constexpr constexpr_v<-Y> operator-() const { return {}; }
     template<auto Y = X>
-      constexpr auto operator~() const -> constexpr_v<~Y> { return {}; }
+      constexpr constexpr_v<~Y> operator~() const { return {}; }
     template<auto Y = X>
-      constexpr auto operator!() const -> constexpr_v<!Y> { return {}; }
+      constexpr constexpr_v<!Y> operator!() const { return {}; }
     template<auto Y = X>
-      constexpr auto operator&() const -> constexpr_v<&Y> { return {}; }
+      constexpr constexpr_v<&Y> operator&() const { return {}; }
     template<auto Y = X>
-      constexpr auto operator*() const -> constexpr_v<*Y> { return {}; }
+      constexpr constexpr_v<*Y> operator*() const { return {}; }
 
     template<class... Args>
-      constexpr auto operator()(Args... args) const -> constexpr_v<X(Args::value...)> { return {}; }
+      constexpr constexpr_v<X(Args::value...)> operator()(Args... args) const { return {}; }
+#if 0
     template<class... Args>
-      constexpr auto operator[](Args... args) const -> constexpr_v<X[Args::value...]> { return {}; }
+      constexpr constexpr_v<X[Args::value...]> operator[](Args... args) const { return {}; }
+#endif
 
     template <lhs_constexpr_param<type> U, constexpr_param V>
       friend constexpr constexpr_v<U::value + V::value> operator+(U, V) { return {}; }
@@ -183,7 +185,7 @@ template<typename T>
 void g(X<T> x)
 {
     x.f(std::c_<1>);
-    x.f(std::c_<2uz>);
+    x.f(std::c_<2>);
 #if !__clang__
     x.f(std::c_<3.0>);
     x.f(std::c_<4.f>);
@@ -283,10 +285,12 @@ int main()
         auto e = d + a;
     }
 
+#if 0
     {
         constexpr std::array<int, 4> array = {1, 2, 3, 4};
         std::c_<array>[std::c_<1>];
     }
+#endif
 
     {
         constexpr parse::str_parser p1{strlit("neg")};
