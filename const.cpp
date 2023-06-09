@@ -12,11 +12,11 @@ namespace std {
   // exposition only
   template <class T>
     concept constexpr_param =
-      requires { typename constexpr_v<T::value>; } and not is_member_pointer_v<decltype(&T::value)>;
+      requires { typename constexpr_v<T::value>; } && !is_member_pointer_v<decltype(&T::value)>;
   template <class T>
     concept derived_from_constexpr = derived_from<T, constexpr_v<T::value>>;
   template <class T, class SelfT>
-    concept lhs_constexpr_param = constexpr_param<T> and (derived_from<T, SelfT> or not derived_from_constexpr<T>);
+    concept lhs_constexpr_param = constexpr_param<T> && (derived_from<T, SelfT> || !derived_from_constexpr<T>);
 
   template<auto X, class T>
   struct constexpr_v {
