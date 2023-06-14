@@ -1,7 +1,10 @@
+#include <boost/hana.hpp>
+
 #include <algorithm>
 #include <array>
 #include <cassert>
 #include <iostream>
+#include <limits>
 #include <string_view>
 
 
@@ -127,6 +130,135 @@ namespace std {
 
   template<auto X>
     inline constexpr constexpr_v<X> c_{};
+
+  namespace detail {
+  // Everything guarded by this macro is exposition only (and not proposed).
+#if !defined(__cpp_lib_constexpr_charconv)
+  using longest_unsigned_type =
+      conditional_t<
+          sizeof(size_t) < sizeof(unsigned long long),
+          unsigned long long,
+          size_t>;
+
+  template<char C>
+  constexpr auto to_int()
+  {
+      if constexpr ('A' <= C && C <= 'F') {
+        return boost::hana::llong_c<C - 'A' + 10>;
+      } else if constexpr ('a' <= C && C <= 'f') {
+        return boost::hana::llong_c<C - 'a' + 10>;
+      } else {
+        return boost::hana::llong_c<C - '0'>;
+      }
+  }
+#endif
+
+  struct ic_base_and_offset_result
+  {
+    int base;
+    int offset;
+  };
+
+  template<size_t Size, char... Chars>
+  constexpr ic_base_and_offset_result ic_base_and_offset()
+  {
+      constexpr char arr[] = {Chars...};
+      if constexpr (arr[0] == '0' && 2 < Size) {
+        constexpr bool is_hex = arr[1] == 'x' || arr[1] == 'X';
+        constexpr bool is_binary = arr[1] == 'b';
+
+        if constexpr (is_hex)
+          return {16, 2};
+        else if constexpr (is_binary)
+          return {2, 2};
+        else
+          return {8, 1};
+      }
+      return {10, 0};
+  }
+
+  template<typename TargetType, char ...Chars>
+  constexpr TargetType ic_parse() // exposition only
+  {
+      constexpr auto size = sizeof...(Chars);
+
+      constexpr auto bao = ic_base_and_offset<size, Chars...>();
+      constexpr int base = bao.base;
+      constexpr int offset = bao.offset;
+
+#if defined(__cpp_lib_constexpr_charconv)
+      // This is really here just for documentation purposes right now,
+      // because this is what is proposed in the paper.  No implementation has
+      // constexpr from_chars() at the time of this writing.
+      const auto f = std::begin(arr) + offset, l = std::end(arr);
+      TargetType x{};
+      constexpr auto result = from_chars(f, l, x, base);
+      return result.ptr == l && result.ec == errc{} ? x : throw logic_error("");
+#else
+      // Approximate implementation to work around the lack of a constexpr
+      // from_chars() at the time of writing.
+
+      using namespace boost::hana::literals;
+
+      constexpr auto digits_ = boost::hana::make_tuple(to_int<Chars>()...);
+      constexpr auto digits_trimmed =
+          boost::hana::drop_front(digits_, boost::hana::llong_c<offset>);
+
+      // initial is (result, mulitplier)
+      constexpr auto initial = boost::hana::make_tuple(
+          boost::hana::llong_c<0>, boost::hana::llong_c<1>);
+      constexpr auto final = boost::hana::reverse_fold(
+          digits_trimmed, initial, [base](auto state, auto element_) {
+              constexpr auto result = boost::hana::llong_c<state[0_c].value>;
+              constexpr auto multiplier = boost::hana::llong_c<state[1_c].value>;
+              constexpr auto element = boost::hana::llong_c<element_.value>;
+              static_assert(
+                  element * multiplier / multiplier == element,
+                  "Overflow detected");
+              static_assert(
+                  result + element * multiplier - element * multiplier ==
+                      result,
+                  "Overflow detected");
+              static_assert(
+                  multiplier * base / base == multiplier, "Overflow detected");
+              return boost::hana::make_tuple(
+                  boost::hana::llong_c<result + element * multiplier>,
+                  boost::hana::llong_c<multiplier * base>);
+          });
+
+      constexpr auto retval = final[0_c].value;
+      static_assert(
+          retval <= std::numeric_limits<TargetType>::max(),
+          "The number parsed in an integral_constant literal is out of the "
+          "representable range for the integral type being parsed");
+      return retval;
+#endif
+  }
+
+  template<char ...Chars, std::size_t... Is>
+  constexpr bool contains_dot(index_sequence<Is...>)
+  {
+      constexpr char chars[] = {Chars...};
+      return ((chars[Is] == '.') || ...);
+  }
+  }
+
+  namespace literals {
+  template <char ...Chars>
+    constexpr auto operator"" cw() {
+      constexpr bool has_dot =
+          detail::contains_dot<Chars...>(make_index_sequence<sizeof...(Chars)>());
+      if constexpr (has_dot) {
+          // parse integral value
+          constexpr auto x = detail::ic_parse<long long, Chars...>();
+          return constexpr_v<x>{};
+      } else {
+          // parse floating point value
+          return 1.0; // TODO
+      }
+    }
+  }
+
 }
 
 // increment and decrement operators intentionally left out
@@ -161,7 +293,7 @@ struct strlit
     char bytes_[N];
 };
 
-// g++-13 ./const.cpp -o const.bin -DDEBUG -std=c++23 && ./const.bin
+// g++-13 ./const.cpp -o const.bin -DDEBUG -std=c++23 -I/home/tzlaine/boost_1_82_0 && ./const.bin
 
 template<typename T>
 struct my_complex
@@ -356,4 +488,11 @@ int main()
     std::cout << foo_type{};
 
 #endif
+
+    {
+        using namespace std::literals;
+
+        constexpr auto x = -1cw + std::c_<1>;
+        static_assert(x == std::c_<0>);
+    }
 }
