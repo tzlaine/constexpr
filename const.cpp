@@ -249,12 +249,27 @@ namespace std {
       constexpr bool has_dot =
           detail::contains_dot<Chars...>(make_index_sequence<sizeof...(Chars)>());
       if constexpr (has_dot) {
-          // parse integral value
+          return 1.0; // TODO
+      } else {
+#if defined(__cpp_lib_constexpr_charconv)
+          constexpr auto bao = ic_base_and_offset<size, Chars...>();
+          constexpr int base = bao.base;
+          constexpr int offset = bao.offset;
+
+          // This is really here just for documentation purposes right now,
+          // because this is what is proposed in the paper.  No implementation
+          // has constexpr from_chars() at the time of this writing.
+          constexpr char chars[] = {Chars...};
+          const auto f = std::begin(chars) + offset, l = std::end(chars);
+          long long x{};
+          constexpr auto result = from_chars(f, l, x, base);
+          if (result.ptr != l || result.ec != errc{})
+              throw logic_error("");
+          return constexpr_v<x>{};
+#else
           constexpr auto x = detail::ic_parse<long long, Chars...>();
           return constexpr_v<x>{};
-      } else {
-          // parse floating point value
-          return 1.0; // TODO
+#endif
       }
     }
   }
@@ -492,7 +507,7 @@ int main()
     {
         using namespace std::literals;
 
-        constexpr auto x = -1cw + std::c_<1>;
-        static_assert(x == std::c_<0>);
+        constexpr auto x = -1cw + std::c_<-1>;
+        static_assert(x == std::c_<-2>);
     }
 }
