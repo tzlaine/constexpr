@@ -33,11 +33,8 @@ namespace std {
     constexpr operator value_type() const { return X; }
     static constexpr value_type value = X;
 
-#define LEWG_SAYS_SO 1
-#if LEWG_SAYS_SO
     template <constexpr_param U>
       constexpr constexpr_v<(X = U::value)> operator=(U) const { return {}; }
-#endif
 
     template<auto Y = X>
       constexpr constexpr_v<+Y> operator+() const { return {}; }
@@ -52,10 +49,11 @@ namespace std {
     template<auto Y = X>
       constexpr constexpr_v<*Y> operator*() const { return {}; }
 
-    template<class... Args>
-      constexpr constexpr_v<X(Args::value...)> operator()(Args... args) const { return {}; }
-    template<class... Args>
-      constexpr constexpr_v<X[Args::value...]> operator[](Args... args) const { return {}; }
+    template<auto Y = X, class... Args>
+      constexpr constexpr_v<Y(Args::value...)> operator()(Args... args) const { return {}; }
+    template<auto Y = X, class... Args>
+      constexpr constexpr_v<Y[Args::value...]> operator[](Args... args) const { return {}; }
+    constexpr value_type operator()() const requires (!std::invocable<value_type>) { return X; }
 
     template <lhs_constexpr_param<type> U, constexpr_param V>
       friend constexpr constexpr_v<U::value + V::value> operator+(U, V) { return {}; }
@@ -104,7 +102,15 @@ namespace std {
     template <lhs_constexpr_param<type> U, constexpr_param V>
       friend constexpr constexpr_v<(U::value ->* V::value)> operator->*(U, V) { return {}; }
 
-#if LEWG_SAYS_SO
+    template <auto Y = X>
+      constexpr constexpr_v<++Y> operator++() { return {}; }
+    template <auto Y = X>
+      constexpr constexpr_v<Y++> operator++(int) { return {}; }
+    template <auto Y = X>
+      constexpr constexpr_v<--Y> operator--() { return {}; }
+    template <auto Y = X>
+      constexpr constexpr_v<Y--> operator--(int) { return {}; }
+
     template <lhs_constexpr_param<type> U, constexpr_param V>
       friend constexpr constexpr_v<(U::value += V::value)> operator+=(U, V) { return {}; }
     template <lhs_constexpr_param<type> U, constexpr_param V>
@@ -125,7 +131,6 @@ namespace std {
       friend constexpr constexpr_v<(U::value <<= V::value)> operator<<=(U, V) { return {}; }
     template <lhs_constexpr_param<type> U, constexpr_param V>
       friend constexpr constexpr_v<(U::value >>= V::value)> operator>>=(U, V) { return {}; }
-#endif
   };
 
   template<auto X>
@@ -509,5 +514,9 @@ int main()
 
         constexpr auto x = -1cw + std::c_<-1>;
         static_assert(x == std::c_<-2>);
+    }
+    {
+        constexpr int value = std::c_<42>();
+        static_assert(value == 42);
     }
 }
