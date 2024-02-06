@@ -13,128 +13,128 @@
 #if !EXAMINE_STREAM_INSERTION_ERRORS
 
 namespace std {
-  template<auto X, class T = remove_cvref_t<decltype(X)>>
-    struct constexpr_v;
+  template<auto X, class adl_type = remove_cvref_t<decltype(X)>>
+    struct constant_wrapper;
 
   // exposition only
   template <class T>
     concept constexpr_param =
-      requires { typename constexpr_v<T::value>; };
+      requires { typename constant_wrapper<T::value>; };
   template <class T>
-    concept derived_from_constexpr = derived_from<T, constexpr_v<T::value>>;
+    concept derived_from_constexpr = derived_from<T, constant_wrapper<T::value>>;
   template <class T, class SelfT>
     concept lhs_constexpr_param = constexpr_param<T> && (derived_from<T, SelfT> || !derived_from_constexpr<T>);
 
-  template<auto X, class T>
-  struct constexpr_v {
-    using value_type = T;
-    using type = constexpr_v;
+  template<auto X, class adl_type>
+  struct constant_wrapper {
+    using value_type = adl_type;
+    using type = constant_wrapper;
 
     constexpr operator value_type() const { return X; }
     static constexpr value_type value = X;
 
     template <constexpr_param U>
-      constexpr constexpr_v<(X = U::value)> operator=(U) const { return {}; }
+      constexpr constant_wrapper<(X = U::value)> operator=(U) const { return {}; }
 
     template<auto Y = X>
-      constexpr constexpr_v<+Y> operator+() const { return {}; }
+      constexpr constant_wrapper<+Y> operator+() const { return {}; }
     template<auto Y = X>
-      constexpr constexpr_v<-Y> operator-() const { return {}; }
+      constexpr constant_wrapper<-Y> operator-() const { return {}; }
     template<auto Y = X>
-      constexpr constexpr_v<~Y> operator~() const { return {}; }
+      constexpr constant_wrapper<~Y> operator~() const { return {}; }
     template<auto Y = X>
-      constexpr constexpr_v<!Y> operator!() const { return {}; }
+      constexpr constant_wrapper<!Y> operator!() const { return {}; }
     template<auto Y = X>
-      constexpr constexpr_v<&Y> operator&() const { return {}; }
+      constexpr constant_wrapper<&Y> operator&() const { return {}; }
     template<auto Y = X>
-      constexpr constexpr_v<*Y> operator*() const { return {}; }
+      constexpr constant_wrapper<*Y> operator*() const { return {}; }
 
     template<auto Y = X, class... Args>
-      constexpr constexpr_v<Y(Args::value...)> operator()(Args... args) const { return {}; }
+      constexpr constant_wrapper<Y(Args::value...)> operator()(Args... args) const { return {}; }
     template<auto Y = X, class... Args>
-      constexpr constexpr_v<Y[Args::value...]> operator[](Args... args) const { return {}; }
+      constexpr constant_wrapper<Y[Args::value...]> operator[](Args... args) const { return {}; }
     constexpr value_type operator()() const requires (!std::invocable<value_type>) { return X; }
 
     template <lhs_constexpr_param<type> U, constexpr_param V>
-      friend constexpr constexpr_v<U::value + V::value> operator+(U, V) { return {}; }
+      friend constexpr constant_wrapper<U::value + V::value> operator+(U, V) { return {}; }
     template <lhs_constexpr_param<type> U, constexpr_param V>
-      friend constexpr constexpr_v<U::value - V::value> operator-(U, V) { return {}; }
+      friend constexpr constant_wrapper<U::value - V::value> operator-(U, V) { return {}; }
     template <lhs_constexpr_param<type> U, constexpr_param V>
-      friend constexpr constexpr_v<U::value * V::value> operator*(U, V) { return {}; }
+      friend constexpr constant_wrapper<U::value * V::value> operator*(U, V) { return {}; }
     template <lhs_constexpr_param<type> U, constexpr_param V>
-      friend constexpr constexpr_v<U::value / V::value> operator/(U, V) { return {}; }
+      friend constexpr constant_wrapper<U::value / V::value> operator/(U, V) { return {}; }
     template <lhs_constexpr_param<type> U, constexpr_param V>
-      friend constexpr constexpr_v<U::value % V::value> operator%(U, V) { return {}; }
+      friend constexpr constant_wrapper<U::value % V::value> operator%(U, V) { return {}; }
 
     template <lhs_constexpr_param<type> U, constexpr_param V>
-      friend constexpr constexpr_v<(U::value << V::value)> operator<<(U, V) { return {}; }
+      friend constexpr constant_wrapper<(U::value << V::value)> operator<<(U, V) { return {}; }
     template <lhs_constexpr_param<type> U, constexpr_param V>
-      friend constexpr constexpr_v<(U::value >> V::value)> operator>>(U, V) { return {}; }
+      friend constexpr constant_wrapper<(U::value >> V::value)> operator>>(U, V) { return {}; }
     template <lhs_constexpr_param<type> U, constexpr_param V>
-      friend constexpr constexpr_v<U::value & V::value> operator&(U, V) { return {}; }
+      friend constexpr constant_wrapper<U::value & V::value> operator&(U, V) { return {}; }
     template <lhs_constexpr_param<type> U, constexpr_param V>
-      friend constexpr constexpr_v<U::value | V::value> operator|(U, V) { return {}; }
+      friend constexpr constant_wrapper<U::value | V::value> operator|(U, V) { return {}; }
     template <lhs_constexpr_param<type> U, constexpr_param V>
-      friend constexpr constexpr_v<U::value ^ V::value> operator^(U, V) { return {}; }
+      friend constexpr constant_wrapper<U::value ^ V::value> operator^(U, V) { return {}; }
 
     template <lhs_constexpr_param<type> U, constexpr_param V>
-      friend constexpr constexpr_v<U::value && V::value> operator&&(U, V) { return {}; }
+      friend constexpr constant_wrapper<U::value && V::value> operator&&(U, V) { return {}; }
     template <lhs_constexpr_param<type> U, constexpr_param V>
-      friend constexpr constexpr_v<U::value || V::value> operator||(U, V) { return {}; }
+      friend constexpr constant_wrapper<U::value || V::value> operator||(U, V) { return {}; }
 
     template <lhs_constexpr_param<type> U, constexpr_param V>
-      friend constexpr constexpr_v<(U::value <=> V::value)> operator<=>(U, V) { return {}; }
+      friend constexpr constant_wrapper<(U::value <=> V::value)> operator<=>(U, V) { return {}; }
     template <lhs_constexpr_param<type> U, constexpr_param V>
-      friend constexpr constexpr_v<(U::value == V::value)> operator==(U, V) { return {}; }
+      friend constexpr constant_wrapper<(U::value == V::value)> operator==(U, V) { return {}; }
     template <lhs_constexpr_param<type> U, constexpr_param V>
-      friend constexpr constexpr_v<(U::value != V::value)> operator!=(U, V) { return {}; }
+      friend constexpr constant_wrapper<(U::value != V::value)> operator!=(U, V) { return {}; }
     template <lhs_constexpr_param<type> U, constexpr_param V>
-      friend constexpr constexpr_v<(U::value < V::value)> operator<(U, V) { return {}; }
+      friend constexpr constant_wrapper<(U::value < V::value)> operator<(U, V) { return {}; }
     template <lhs_constexpr_param<type> U, constexpr_param V>
-      friend constexpr constexpr_v<(U::value > V::value)> operator>(U, V) { return {}; }
+      friend constexpr constant_wrapper<(U::value > V::value)> operator>(U, V) { return {}; }
     template <lhs_constexpr_param<type> U, constexpr_param V>
-      friend constexpr constexpr_v<(U::value <= V::value)> operator<=(U, V) { return {}; }
+      friend constexpr constant_wrapper<(U::value <= V::value)> operator<=(U, V) { return {}; }
     template <lhs_constexpr_param<type> U, constexpr_param V>
-      friend constexpr constexpr_v<(U::value >= V::value)> operator>=(U, V) { return {}; }
+      friend constexpr constant_wrapper<(U::value >= V::value)> operator>=(U, V) { return {}; }
 
     template <lhs_constexpr_param<type> U, constexpr_param V>
-      friend constexpr constexpr_v<(U::value, V::value)> operator,(U, V) { return {}; }
+      friend constexpr constant_wrapper<(U::value, V::value)> operator,(U, V) { return {}; }
     template <lhs_constexpr_param<type> U, constexpr_param V>
-      friend constexpr constexpr_v<(U::value ->* V::value)> operator->*(U, V) { return {}; }
+      friend constexpr constant_wrapper<(U::value ->* V::value)> operator->*(U, V) { return {}; }
 
     template <auto Y = X>
-      constexpr constexpr_v<++Y> operator++() { return {}; }
+      constexpr constant_wrapper<++Y> operator++() { return {}; }
     template <auto Y = X>
-      constexpr constexpr_v<Y++> operator++(int) { return {}; }
+      constexpr constant_wrapper<Y++> operator++(int) { return {}; }
     template <auto Y = X>
-      constexpr constexpr_v<--Y> operator--() { return {}; }
+      constexpr constant_wrapper<--Y> operator--() { return {}; }
     template <auto Y = X>
-      constexpr constexpr_v<Y--> operator--(int) { return {}; }
+      constexpr constant_wrapper<Y--> operator--(int) { return {}; }
 
     template <lhs_constexpr_param<type> U, constexpr_param V>
-      friend constexpr constexpr_v<(U::value += V::value)> operator+=(U, V) { return {}; }
+      friend constexpr constant_wrapper<(U::value += V::value)> operator+=(U, V) { return {}; }
     template <lhs_constexpr_param<type> U, constexpr_param V>
-      friend constexpr constexpr_v<(U::value -= V::value)> operator-=(U, V) { return {}; }
+      friend constexpr constant_wrapper<(U::value -= V::value)> operator-=(U, V) { return {}; }
     template <lhs_constexpr_param<type> U, constexpr_param V>
-      friend constexpr constexpr_v<(U::value *= V::value)> operator*=(U, V) { return {}; }
+      friend constexpr constant_wrapper<(U::value *= V::value)> operator*=(U, V) { return {}; }
     template <lhs_constexpr_param<type> U, constexpr_param V>
-      friend constexpr constexpr_v<(U::value /= V::value)> operator/=(U, V) { return {}; }
+      friend constexpr constant_wrapper<(U::value /= V::value)> operator/=(U, V) { return {}; }
     template <lhs_constexpr_param<type> U, constexpr_param V>
-      friend constexpr constexpr_v<(U::value %= V::value)> operator%=(U, V) { return {}; }
+      friend constexpr constant_wrapper<(U::value %= V::value)> operator%=(U, V) { return {}; }
     template <lhs_constexpr_param<type> U, constexpr_param V>
-      friend constexpr constexpr_v<(U::value &= V::value)> operator&=(U, V) { return {}; }
+      friend constexpr constant_wrapper<(U::value &= V::value)> operator&=(U, V) { return {}; }
     template <lhs_constexpr_param<type> U, constexpr_param V>
-      friend constexpr constexpr_v<(U::value |= V::value)> operator|=(U, V) { return {}; }
+      friend constexpr constant_wrapper<(U::value |= V::value)> operator|=(U, V) { return {}; }
     template <lhs_constexpr_param<type> U, constexpr_param V>
-      friend constexpr constexpr_v<(U::value ^= V::value)> operator^=(U, V) { return {}; }
+      friend constexpr constant_wrapper<(U::value ^= V::value)> operator^=(U, V) { return {}; }
     template <lhs_constexpr_param<type> U, constexpr_param V>
-      friend constexpr constexpr_v<(U::value <<= V::value)> operator<<=(U, V) { return {}; }
+      friend constexpr constant_wrapper<(U::value <<= V::value)> operator<<=(U, V) { return {}; }
     template <lhs_constexpr_param<type> U, constexpr_param V>
-      friend constexpr constexpr_v<(U::value >>= V::value)> operator>>=(U, V) { return {}; }
+      friend constexpr constant_wrapper<(U::value >>= V::value)> operator>>=(U, V) { return {}; }
   };
 
   template<auto X>
-    inline constexpr constexpr_v<X> c_{};
+    inline constexpr constant_wrapper<X> cw{};
 
   namespace detail {
   // Everything guarded by this macro is exposition only (and not proposed).
@@ -270,10 +270,10 @@ namespace std {
           constexpr auto result = from_chars(f, l, x, base);
           if (result.ptr != l || result.ec != errc{})
               throw logic_error("");
-          return constexpr_v<x>{};
+          return constant_wrapper<x>{};
 #else
           constexpr auto x = detail::ic_parse<long long, Chars...>();
-          return constexpr_v<x>{};
+          return constant_wrapper<x>{};
 #endif
       }
     }
@@ -338,14 +338,14 @@ inline constexpr short foo = 2;
 template<typename T>
 void g(X<T> x)
 {
-    x.f(std::c_<1>);
-    x.f(std::c_<2>);
+    x.f(std::cw<1>);
+    x.f(std::cw<2>);
 #if !__clang__
-    x.f(std::c_<3.0>);
-    x.f(std::c_<4.f>);
+    x.f(std::cw<3.0>);
+    x.f(std::cw<4.f>);
 #endif
-    x.f(std::c_<foo>);
-    x.f(std::c_<my_complex(1.f, 1.f)>);
+    x.f(std::cw<foo>);
+    x.f(std::cw<my_complex(1.f, 1.f)>);
 }
 
 namespace parse {
@@ -388,10 +388,10 @@ namespace parse {
     };
 }
 
-struct derived_from_constexpr_v : std::constexpr_v<42>
+struct derived_from_constant_wrapper : std::constant_wrapper<42>
 {};
 
-struct also_derived_from_constexpr_v : std::constexpr_v<2>
+struct also_derived_from_constant_wrapper : std::constant_wrapper<2>
 {};
 
 struct Test
@@ -411,7 +411,7 @@ struct Test
 template<auto Expected, std::constexpr_param C>
 void check(C x)
 {
-    static_assert(std::same_as<C, std::constexpr_v<Expected>>);
+    static_assert(std::same_as<C, std::constant_wrapper<Expected>>);
     static_assert(C::value == Expected);
     static_assert(x == Expected);
     static_assert(x.value == Expected);
@@ -425,53 +425,53 @@ struct foo_type
 int main()
 {
 #if !EXAMINE_STREAM_INSERTION_ERRORS
-    auto x = std::c_<42>;
-    static_assert(std::is_same_v<decltype(std::c_<42>)::value_type, int>);
+    auto x = std::cw<42>;
+    static_assert(std::is_same_v<decltype(std::cw<42>)::value_type, int>);
 
     constexpr int i = 13;
-    auto y = std::c_<i>;
-    static_assert(std::is_same_v<decltype(std::c_<13>)::value_type, int>);
+    auto y = std::cw<i>;
+    static_assert(std::is_same_v<decltype(std::cw<13>)::value_type, int>);
 
     std::cout << x << "\n";
 
     std::cout << x - y << "\n";
-    std::cout << std::c_<42> - std::c_<13u> << "\n";
-    auto z = std::c_<42> - std::c_<13u>;
+    std::cout << std::cw<42> - std::cw<13u> << "\n";
+    auto z = std::cw<42> - std::cw<13u>;
     static_assert(std::is_same_v<
-                  decltype(std::c_<42> - std::c_<13u>),
-                  std::constexpr_v<29u>>);
+                  decltype(std::cw<42> - std::cw<13u>),
+                  std::constant_wrapper<29u>>);
 
-    constexpr auto q = ~std::c_<1u> >> 10;
+    constexpr auto q = ~std::cw<1u> >> 10;
 
-    std::cout << (~std::c_<1u> >> 10) << "\n";
-    std::cout << +std::c_<1u> << "\n";
+    std::cout << (~std::cw<1u> >> 10) << "\n";
+    std::cout << +std::cw<1u> << "\n";
 
     constexpr my_nttp nttp;
-    auto custom = std::c_<nttp>;
+    auto custom = std::cw<nttp>;
     // +custom; // Ill-formed!
     auto r = custom(x, y);
 
     std::cout << r << "\n";
 
-    auto f = std::c_<strlit("foo")>;
+    auto f = std::cw<strlit("foo")>;
     std::cout << f << "\n";
 
     {
-        derived_from_constexpr_v d;
+        derived_from_constant_wrapper d;
         auto e = d + d;
-        auto f = d + std::c_<1>;
-        auto g = std::c_<1> + d;
+        auto f = d + std::cw<1>;
+        auto g = std::cw<1> + d;
     }
     {
-        derived_from_constexpr_v d;
-        also_derived_from_constexpr_v a;
+        derived_from_constant_wrapper d;
+        also_derived_from_constant_wrapper a;
         auto e = d + a;
     }
 
 #if 0
     {
         constexpr std::array<int, 4> array = {1, 2, 3, 4};
-        std::c_<array>[std::c_<1>];
+        std::cw<array>[std::cw<1>];
     }
 #endif
 
@@ -489,18 +489,18 @@ int main()
         constexpr bool matches_decr = p(strlit("decr"));
         static_assert(matches_decr);
 
-        constexpr auto p_ = std::c_<p1> | std::c_<p2> | std::c_<p3>;
+        constexpr auto p_ = std::cw<p1> | std::cw<p2> | std::cw<p3>;
 
-        constexpr bool matches_empty_ = p_(std::c_<strlit("")>);
+        constexpr bool matches_empty_ = p_(std::cw<strlit("")>);
         static_assert(!matches_empty_);
-        constexpr bool matches_pos_ = p_(std::c_<strlit("pos")>);
+        constexpr bool matches_pos_ = p_(std::cw<strlit("pos")>);
         static_assert(!matches_pos_);
-        constexpr bool matches_decr_ = p_(std::c_<strlit("decr")>);
+        constexpr bool matches_decr_ = p_(std::cw<strlit("decr")>);
         static_assert(matches_decr_);
     }
 
     {
-        check<Test{}>(std::c_<Test{}>);
+        check<Test{}>(std::cw<Test{}>);
     }
 
 #else
@@ -512,11 +512,11 @@ int main()
     {
         using namespace std::literals;
 
-        constexpr auto x = -1cw + std::c_<-1>;
-        static_assert(x == std::c_<-2>);
+        constexpr auto x = -1cw + std::cw<-1>;
+        static_assert(x == std::cw<-2>);
     }
     {
-        constexpr int value = std::c_<42>();
+        constexpr int value = std::cw<42>();
         static_assert(value == 42);
     }
 }
