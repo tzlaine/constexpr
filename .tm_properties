@@ -1,0 +1,8 @@
+CLANG_FORMAT_ON_SAVE = true
+
+excludeDirectories = "{$excludeDirectories,build}"
+exclude = "{$exclude,a.out}"
+include = "{$include,.gitignore,.gitattributes,.clang-format}"
+excludeInFolderSearch = "{$excludeInFolderSearch,build}" 
+softTabs = false
+tabSize = 4
