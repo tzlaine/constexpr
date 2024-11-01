@@ -8,7 +8,7 @@ namespace _impl {
 	template <typename _T> struct _fixed_value;
 };
 
-template <_impl::_fixed_value _Value, typename _AdlType = typename decltype(_Value)::_type> struct constant_wrapper;
+template <_impl::_fixed_value _Value, typename _AdlType = typename decltype(_impl::_fixed_value(_Value))::_type> struct constant_wrapper;
 
 template <class T> concept constexpr_param = requires { T::value; typename T::type; };
 
@@ -138,16 +138,16 @@ namespace _impl {
 } // namespace _impl
 
 template <_impl::_fixed_value _Value, typename _AdlType> struct constant_wrapper: _impl::operators {
-	static constexpr const auto value = _Value._data;
+	static constexpr const auto & value = _Value._data;
 	using type = typename decltype(_Value)::_type;
 	using value_type = type;
 
-	constexpr operator auto() const noexcept {
+	constexpr operator decltype(auto)() const noexcept {
 		return value;
 	}
 
 	using _impl::operators::operator();
-	constexpr auto operator()() const noexcept {
+	constexpr decltype(auto) operator()() const noexcept {
 		return value;
 	}
 };
