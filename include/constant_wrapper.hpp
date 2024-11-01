@@ -147,6 +147,7 @@ template <_impl::_fixed_value _Value, typename _AdlType> struct constant_wrapper
 	}
 
 	using _impl::operators::operator();
+
 	constexpr decltype(auto) operator()() const noexcept {
 		return value;
 	}
