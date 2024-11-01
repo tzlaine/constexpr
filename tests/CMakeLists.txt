@@ -1,7 +1,7 @@
 find_package(Catch2 3 REQUIRED)
 
 add_executable(test-runner
-	basic.cpp
+	basic.cpp basic2.cpp
 )
 
 target_link_libraries(test-runner PRIVATE Catch2::Catch2WithMain constant_wrapper)

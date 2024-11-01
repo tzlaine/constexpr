@@ -1,20 +1,7 @@
+#include "support.hpp"
 #include <catch2/catch_test_macros.hpp>
 #include <constant_wrapper.hpp>
 #include <sstream>
-
-struct type_sink {};
-
-template <typename T> struct type_t {
-  consteval operator type_sink() const noexcept { return {}; }
-  consteval friend bool operator==(type_t, type_t) noexcept { return true; }
-};
-
-consteval bool operator==(type_sink, type_sink) noexcept { return false; }
-
-template <auto V> constexpr auto type_of = type_t<decltype(V)>{};
-template <typename T> constexpr auto type = type_t<T>{};
-
-template <typename> struct identify;
 
 struct nothing {};
 
@@ -100,4 +87,9 @@ TEST_CASE("binary op non constwrapper") {
   constexpr auto inc = x + 2;
   REQUIRE(dec == -1);
   REQUIRE(inc == 3);
+}
+
+TEST_CASE("deduce string size") {
+  constexpr auto x = std::cw<"hello">;
+  const auto test = []<size_t N>(const char(&)[N]) { REQUIRE(N == 6); };
 }
