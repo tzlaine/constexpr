@@ -87,7 +87,10 @@ TEST_CASE("binary op non constwrapper") {
   REQUIRE(inc == 3);
 }
 
-TEST_CASE("deduce string size") {
-  constexpr auto x = std::cw<"hello">;
-  const auto test = []<size_t N>(const char(&)[N]) { REQUIRE(N == 6); };
+TEST_CASE("deduce string size")
+{
+    [[maybe_unused]] constexpr auto x = std::cw<"hello">;
+    [[maybe_unused]] const auto test = []<size_t N>(const char(&)[N]) {
+        REQUIRE(N == 6);
+    };
 }

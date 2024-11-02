@@ -46,11 +46,11 @@ function(enable_coverage)
 		message(FATAL_ERROR "Source level code coverage is not supporter!")
 	endif()
 	
-	if (NOT LLVM_COV)
-		message(FATAL_ERROR "Source level code coverage is supported only for Clang compiler! (CMAKE_CXX_COMPILER_ID = ${CMAKE_CXX_COMPILER_ID})")
-	endif()
-	
-	message(STATUS "Enabling Clang source code-coverage (llvm-cov=${LLVM_COV})")
+	#if (NOT LLVM_COV)
+	#	message(FATAL_ERROR "Source level code coverage is supported only for Clang compiler! (CMAKE_CXX_COMPILER_ID = ${CMAKE_CXX_COMPILER_ID})")
+	#endif()
+	#
+	#message(STATUS "Enabling Clang source code-coverage (llvm-cov=${LLVM_COV})")
 	
 	# add flags to emit coverage
 	add_compile_options("-fprofile-instr-generate" "-fcoverage-mapping" "-g")

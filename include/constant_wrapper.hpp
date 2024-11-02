@@ -3,7 +3,6 @@
 
 namespace std {
 
-// forward declarations
 namespace exposition_only {
   template<typename T>
   struct fixed_value; // exposition only
