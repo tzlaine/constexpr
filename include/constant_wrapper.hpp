@@ -9,7 +9,7 @@ namespace exposition_only {
 };
 
 template<exposition_only::fixed_value Value,
-        typename adl_type = typename decltype(exposition_only::fixed_value(Value))::type> // exposition only
+         typename adl_type = typename decltype(exposition_only::fixed_value(Value))::type> // exposition only
 struct constant_wrapper;
 
 template<class T>
@@ -43,134 +43,123 @@ namespace exposition_only {
   struct operators { // exposition only
     // unary operators
     template<constexpr_param T>
-    friend constexpr auto operator+(T) noexcept -> constant_wrapper<(+T::value)> { return {}; }
+      friend constexpr auto operator+(T) noexcept -> constant_wrapper<(+T::value)> { return {}; }
     template<constexpr_param T>
-    friend constexpr auto operator-(T) noexcept -> constant_wrapper<(-T::value)> { return {}; }
+      friend constexpr auto operator-(T) noexcept -> constant_wrapper<(-T::value)> { return {}; }
     template<constexpr_param T>
-    friend constexpr auto operator~(T) noexcept -> constant_wrapper<(~T::value)> { return {}; }
+      friend constexpr auto operator~(T) noexcept -> constant_wrapper<(~T::value)> { return {}; }
     template<constexpr_param T>
-    friend constexpr auto operator!(T) noexcept -> constant_wrapper<(!T::value)> { return {}; }
+      friend constexpr auto operator!(T) noexcept -> constant_wrapper<(!T::value)> { return {}; }
     template<constexpr_param T>
-    friend constexpr auto operator&(T) noexcept -> constant_wrapper<(&T::value)> { return {}; }
+      friend constexpr auto operator&(T) noexcept -> constant_wrapper<(&T::value)> { return {}; }
     template<constexpr_param T>
-    friend constexpr auto operator*(T) noexcept -> constant_wrapper<(*T::value)> { return {}; }
+      friend constexpr auto operator*(T) noexcept -> constant_wrapper<(*T::value)> { return {}; }
 
     // binary operators
     template<constexpr_param L, constexpr_param R>
-    friend constexpr auto operator+(L, R) noexcept -> constant_wrapper<(L::value + R::value)> { return {}; }
+      friend constexpr auto operator+(L, R) noexcept -> constant_wrapper<(L::value + R::value)> { return {}; }
     template<constexpr_param L, constexpr_param R>
-    friend constexpr auto operator-(L, R) noexcept -> constant_wrapper<(L::value - R::value)> { return {}; }
+      friend constexpr auto operator-(L, R) noexcept -> constant_wrapper<(L::value - R::value)> { return {}; }
     template<constexpr_param L, constexpr_param R>
-    friend constexpr auto operator*(L, R) noexcept -> constant_wrapper<(L::value * R::value)> { return {}; }
+      friend constexpr auto operator*(L, R) noexcept -> constant_wrapper<(L::value * R::value)> { return {}; }
     template<constexpr_param L, constexpr_param R>
-    friend constexpr auto operator/(L, R) noexcept -> constant_wrapper<(L::value / R::value)> { return {}; }
+      friend constexpr auto operator/(L, R) noexcept -> constant_wrapper<(L::value / R::value)> { return {}; }
     template<constexpr_param L, constexpr_param R>
-    friend constexpr auto operator%(L, R) noexcept -> constant_wrapper<(L::value % R::value)> { return {}; }
+      friend constexpr auto operator%(L, R) noexcept -> constant_wrapper<(L::value % R::value)> { return {}; }
 
     template<constexpr_param L, constexpr_param R>
-    friend constexpr auto operator<<(L, R) noexcept -> constant_wrapper<(L::value << R::value)> { return {}; }
+      friend constexpr auto operator<<(L, R) noexcept -> constant_wrapper<(L::value << R::value)> { return {}; }
     template<constexpr_param L, constexpr_param R>
-    friend constexpr auto operator>>(L, R) noexcept -> constant_wrapper<(L::value >> R::value)> { return {}; }
+      friend constexpr auto operator>>(L, R) noexcept -> constant_wrapper<(L::value >> R::value)> { return {}; }
     template<constexpr_param L, constexpr_param R>
-    friend constexpr auto operator&(L, R) noexcept -> constant_wrapper<(L::value & R::value)> { return {}; }
+      friend constexpr auto operator&(L, R) noexcept -> constant_wrapper<(L::value & R::value)> { return {}; }
     template<constexpr_param L, constexpr_param R>
-    friend constexpr auto operator|(L, R) noexcept -> constant_wrapper<(L::value | R::value)> { return {}; }
+      friend constexpr auto operator|(L, R) noexcept -> constant_wrapper<(L::value | R::value)> { return {}; }
     template<constexpr_param L, constexpr_param R>
-    friend constexpr auto operator^(L, R) noexcept -> constant_wrapper<(L::value ^ R::value)> { return {}; }
+      friend constexpr auto operator^(L, R) noexcept -> constant_wrapper<(L::value ^ R::value)> { return {}; }
 
     template<constexpr_param L, constexpr_param R>
-    friend constexpr auto operator&&(L, R) noexcept -> constant_wrapper<(L::value && R::value)> { return {}; }
+      friend constexpr auto operator&&(L, R) noexcept -> constant_wrapper<(L::value && R::value)> { return {}; }
     template<constexpr_param L, constexpr_param R>
-    friend constexpr auto operator||(L, R) noexcept -> constant_wrapper<(L::value || R::value)> { return {}; }
+      friend constexpr auto operator||(L, R) noexcept -> constant_wrapper<(L::value || R::value)> { return {}; }
 
     // comparisons
     template<constexpr_param L, constexpr_param R>
-    friend constexpr auto operator<=>(L, R) noexcept -> constant_wrapper<(L::value <=> R::value)> { return {}; }
+      friend constexpr auto operator<=>(L, R) noexcept -> constant_wrapper<(L::value <=> R::value)> { return {}; }
     template<constexpr_param L, constexpr_param R>
-    friend constexpr auto operator<(L, R) noexcept -> constant_wrapper<(L::value < R::value)> { return {}; }
+      friend constexpr auto operator<(L, R) noexcept -> constant_wrapper<(L::value < R::value)> { return {}; }
     template<constexpr_param L, constexpr_param R>
-    friend constexpr auto operator<=(L, R) noexcept -> constant_wrapper<(L::value <= R::value)> { return {}; }
+      friend constexpr auto operator<=(L, R) noexcept -> constant_wrapper<(L::value <= R::value)> { return {}; }
     template<constexpr_param L, constexpr_param R>
-    friend constexpr auto operator==(L, R) noexcept -> constant_wrapper<(L::value == R::value)> { return {}; }
+      friend constexpr auto operator==(L, R) noexcept -> constant_wrapper<(L::value == R::value)> { return {}; }
     template<constexpr_param L, constexpr_param R>
-    friend constexpr auto operator!=(L, R) noexcept -> constant_wrapper<(L::value != R::value)> { return {}; }
+      friend constexpr auto operator!=(L, R) noexcept -> constant_wrapper<(L::value != R::value)> { return {}; }
     template<constexpr_param L, constexpr_param R>
-    friend constexpr auto operator>(L, R) noexcept -> constant_wrapper<(L::value > R::value)> { return {}; }
+      friend constexpr auto operator>(L, R) noexcept -> constant_wrapper<(L::value > R::value)> { return {}; }
     template<constexpr_param L, constexpr_param R>
-    friend constexpr auto operator>=(L, R) noexcept -> constant_wrapper<(L::value >= R::value)> { return {}; }
+      friend constexpr auto operator>=(L, R) noexcept -> constant_wrapper<(L::value >= R::value)> { return {}; }
 
     template<constexpr_param L, constexpr_param R>
-    friend constexpr auto operator,(L, R) noexcept -> constant_wrapper<operator,(L::value, R::value)> { return {}; }
+      friend constexpr auto operator,(L, R) noexcept -> constant_wrapper<operator,(L::value, R::value)>
+         { return {}; }
     template<constexpr_param L, constexpr_param R>
-    friend constexpr auto operator->*(L, R) noexcept -> constant_wrapper<operator->*(L::value, R::value)> { return {}; }
+      friend constexpr auto operator->*(L, R) noexcept -> constant_wrapper<operator->*(L::value, R::value)>
+        { return {}; }
 
     // call and index
     template<constexpr_param T, constexpr_param... Args>
-    constexpr auto operator()(this T, Args...) noexcept requires requires(T::value_type x, Args...) { x(Args::value...); } {
-      return constant_wrapper<(T::value(Args::value...))>{};
-    }
+      constexpr auto operator()(this T, Args...) noexcept
+        requires requires(T::value_type x, Args...) { x(Args::value...); }
+          { return constant_wrapper<(T::value(Args::value...))>{}; }
     template<constexpr_param T, constexpr_param... Args>
-    constexpr auto operator[](this T, Args...) noexcept -> constant_wrapper<(T::value[Args::value...])> { return {}; }
+      constexpr auto operator[](this T, Args...) noexcept -> constant_wrapper<(T::value[Args::value...])>
+        { return {}; }
 
     // pseudo-mutators
     template<constexpr_param T>
-    constexpr auto operator++(this T) noexcept requires requires(T::value_type x) { ++x; } {
-      return constant_wrapper<[] { auto c = T::value; return ++c; }()>{};
-    }
+      constexpr auto operator++(this T) noexcept requires requires(T::value_type x) { ++x; }
+        { return constant_wrapper<[] { auto c = T::value; return ++c; }()>{}; }
     template<constexpr_param T>
-    constexpr auto operator++(this T, int) noexcept requires requires(T::value_type x) { x++; } {
-      return constant_wrapper<[] { auto c = T::value; return ++c; }()>{};
-    }
+      constexpr auto operator++(this T, int) noexcept requires requires(T::value_type x) { x++; }
+        { return constant_wrapper<[] { auto c = T::value; return ++c; }()>{}; }
 
     template<constexpr_param T>
-    constexpr auto operator--(this T) noexcept requires requires(T::value_type x) { --x; } {
-      return constant_wrapper<[] { auto c = T::value; return --c; }()>{};
-    }
+      constexpr auto operator--(this T) noexcept requires requires(T::value_type x) { --x; }
+        { return constant_wrapper<[] { auto c = T::value; return --c; }()>{}; }
     template<constexpr_param T>
-    constexpr auto operator--(this T, int) noexcept requires requires(T::value_type x) { x--; } {
-      return constant_wrapper<[] { auto c = T::value; return c--; }()>{};
-    }
+      constexpr auto operator--(this T, int) noexcept requires requires(T::value_type x) { x--; }
+        { return constant_wrapper<[] { auto c = T::value; return c--; }()>{}; }
 
     template<constexpr_param T, constexpr_param R>
-    constexpr auto operator+=(this T, R) noexcept requires requires(T::value_type x) { x += R::value; } {
-      return constant_wrapper<[] { auto v = T::value; return v += R::value; }()>{};
-    }
+      constexpr auto operator+=(this T, R) noexcept requires requires(T::value_type x) { x += R::value; }
+        { return constant_wrapper<[] { auto v = T::value; return v += R::value; }()>{}; }
     template<constexpr_param T, constexpr_param R>
-    constexpr auto operator-=(this T, R) noexcept requires requires(T::value_type x) { x -= R::value; } {
-      return constant_wrapper<[] { auto v = T::value; return v -= R::value; }()>{};
-    }
+      constexpr auto operator-=(this T, R) noexcept requires requires(T::value_type x) { x -= R::value; }
+        { return constant_wrapper<[] { auto v = T::value; return v -= R::value; }()>{}; }
     template<constexpr_param T, constexpr_param R>
-    constexpr auto operator*=(this T, R) noexcept requires requires(T::value_type x) { x *= R::value; } {
-      return constant_wrapper<[] { auto v = T::value; return v *= R::value; }()>{};
-    }
+      constexpr auto operator*=(this T, R) noexcept requires requires(T::value_type x) { x *= R::value; }
+        { return constant_wrapper<[] { auto v = T::value; return v *= R::value; }()>{}; }
     template<constexpr_param T, constexpr_param R>
-    constexpr auto operator/=(this T, R) noexcept requires requires(T::value_type x) { x /= R::value; } {
-      return constant_wrapper<[] { auto v = T::value; return v /= R::value; }()>{};
-    }
+      constexpr auto operator/=(this T, R) noexcept requires requires(T::value_type x) { x /= R::value; }
+        { return constant_wrapper<[] { auto v = T::value; return v /= R::value; }()>{}; }
     template<constexpr_param T, constexpr_param R>
-    constexpr auto operator%=(this T, R) noexcept requires requires(T::value_type x) { x %= R::value; } {
-      return constant_wrapper<[] { auto v = T::value; return v %= R::value; }()>{};
-    }
+      constexpr auto operator%=(this T, R) noexcept requires requires(T::value_type x) { x %= R::value; }
+        { return constant_wrapper<[] { auto v = T::value; return v %= R::value; }()>{}; }
     template<constexpr_param T, constexpr_param R>
-    constexpr auto operator&=(this T, R) noexcept requires requires(T::value_type x) { x &= R::value; } {
-      return constant_wrapper<[] { auto v = T::value; return v &= R::value; }()>{};
-    }
+      constexpr auto operator&=(this T, R) noexcept requires requires(T::value_type x) { x &= R::value; }
+        { return constant_wrapper<[] { auto v = T::value; return v &= R::value; }()>{}; }
     template<constexpr_param T, constexpr_param R>
-    constexpr auto operator|=(this T, R) noexcept requires requires(T::value_type x) { x |= R::value; } {
-      return constant_wrapper<[] { auto v = T::value; return v |= R::value; }()>{};
-    }
+      constexpr auto operator|=(this T, R) noexcept requires requires(T::value_type x) { x |= R::value; }
+        { return constant_wrapper<[] { auto v = T::value; return v |= R::value; }()>{}; }
     template<constexpr_param T, constexpr_param R>
-    constexpr auto operator^=(this T, R) noexcept requires requires(T::value_type x) { x ^= R::value; } {
-      return constant_wrapper<[] { auto v = T::value; return v ^= R::value; }()>{};
-    }
+      constexpr auto operator^=(this T, R) noexcept requires requires(T::value_type x) { x ^= R::value; }
+        { return constant_wrapper<[] { auto v = T::value; return v ^= R::value; }()>{}; }
     template<constexpr_param T, constexpr_param R>
-    constexpr auto operator<<=(this T, R) noexcept requires requires(T::value_type x) { x <<= R::value; } {
-      return constant_wrapper<[] { auto v = T::value; return v <<= R::value; }()>{};
-    }
+      constexpr auto operator<<=(this T, R) noexcept requires requires(T::value_type x) { x <<= R::value; }
+        { return constant_wrapper<[] { auto v = T::value; return v <<= R::value; }()>{}; }
     template<constexpr_param T, constexpr_param R>
-    constexpr auto operator>>=(this T, R) noexcept requires requires(T::value_type x) { x >>= R::value; } {
-      return constant_wrapper<[] { auto v = T::value; return v >>= R::value; }()>{};
-    }
+      constexpr auto operator>>=(this T, R) noexcept requires requires(T::value_type x) { x >>= R::value; }
+        { return constant_wrapper<[] { auto v = T::value; return v >>= R::value; }()>{}; }
   };
 }
 
