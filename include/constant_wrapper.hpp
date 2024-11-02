@@ -18,25 +18,21 @@ concept constexpr_param = requires { typename constant_wrapper<T::value>; }; // 
 namespace exposition_only {
   template<typename T>
   struct fixed_value { // exposition only
-    T data;
-
     using type = T;
-
     constexpr fixed_value(type v) noexcept: data(v) { }
+    T data;
   };
 
   template<typename T, size_t Extent>
   struct fixed_value<T[Extent]> { // exposition only
-    T data[Extent];
-
-    using type = T[Extent];
-
   private:
     template<size_t... Idx>
     constexpr fixed_value(T (&arr)[Extent], std::index_sequence<Idx...>) noexcept: data{arr[Idx]...} { }
 
   public:
+    using type = T[Extent];
     constexpr fixed_value(T (&arr)[Extent]) noexcept: fixed_value(arr, std::make_index_sequence<Extent>()) { }
+    T data[Extent];
   };
 
   template<typename T, size_t Extent>
