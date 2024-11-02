@@ -71,6 +71,12 @@ TEST_CASE("semi modifying ops binary") {
   REQUIRE(type_of<inc> == type<std::constant_wrapper<3>>);
 }
 
+TEST_CASE("semi modifying ops assignment") {
+  constexpr auto x = std::cw<1>;
+  constexpr auto assigned = x = std::cw<2>;
+  REQUIRE(type_of<assigned> == type<std::constant_wrapper<(2)>>);
+}
+
 template <typename T> constexpr T copy(T v) noexcept { return v; }
 
 TEST_CASE("binary op non constwrapper") {

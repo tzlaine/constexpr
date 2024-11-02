@@ -185,6 +185,11 @@ struct constant_wrapper: exposition_only::operators {
   using type = constant_wrapper;
   using value_type = typename decltype(Value)::type;
 
+  template<constexpr_param R>
+  constexpr auto operator=(R) const noexcept requires requires(value_type x) { x = R::value; } {
+    return constant_wrapper<[] { auto v = value; return v = R::value; }()>{};
+  }
+
   constexpr operator decltype(auto)() const noexcept { return value; }
   constexpr decltype(auto) operator()() const noexcept { return value; }
 
