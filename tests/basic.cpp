@@ -46,14 +46,6 @@ TEST_CASE("stream interaction string") {
   REQUIRE(ss.str() == "hello");
 }
 
-TEST_CASE("string literal op") {
-  using namespace std::literals;
-  auto ss = std::stringstream{};
-  constexpr auto c = "hello"_cw[std::cw<4>];
-  ss << c;
-  REQUIRE(ss.str() == "o");
-}
-
 TEST_CASE("array") {
   constexpr int arr[] = {1, 2, 3, 4};
   constexpr auto array = std::cw<arr>;

@@ -34,7 +34,8 @@ add_library(constant_wrapper INTERFACE include/constant_wrapper.hpp)
 target_include_directories(constant_wrapper INTERFACE include)
 target_compile_features(constant_wrapper INTERFACE cxx_std_23)
 
-find_package(Boost REQUIRED COMPONENTS system)
+add_library(boost INTERFACE)
+target_include_directories(boost INTERFACE ${boost_headers_DIR})
 
 add_executable(original const.cpp)
-target_link_libraries(original constant_wrapper Boost::headers)
+target_link_libraries(original constant_wrapper boost)
