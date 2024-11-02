@@ -355,4 +355,20 @@ int main() {
     constexpr int value = std::cw<42>();
     static_assert(value == 42);
   }
+
+  {
+      std::cout << std::cw<"foo"> << "\n";
+  }
+
+  {
+      static_assert(
+          std::same_as<
+              decltype(std::cw<"foo">),
+              const std::constant_wrapper<
+                  std::exposition_only::cw_fixed_value<const char[4]>{"foo"}>>);
+      static_assert(std::same_as<
+                    decltype(std::cw<42>),
+                    const std::constant_wrapper<
+                        std::exposition_only::cw_fixed_value<int>{42}>>);
+  }
 }

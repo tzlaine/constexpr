@@ -5,11 +5,11 @@ namespace std {
 
 namespace exposition_only {
   template<typename T>
-  struct fixed_value; // exposition only
+  struct cw_fixed_value; // exposition only
 };
 
-template<exposition_only::fixed_value Value,
-         typename adl_type = typename decltype(exposition_only::fixed_value(Value))::type> // exposition only
+template<exposition_only::cw_fixed_value X,
+         typename adl_type = typename decltype(exposition_only::cw_fixed_value(X))::type> // exposition only
 struct constant_wrapper;
 
 template<class T>
@@ -17,30 +17,29 @@ concept constexpr_param = requires { typename constant_wrapper<T::value>; }; // 
 
 namespace exposition_only {
   template<typename T>
-  struct fixed_value { // exposition only
+  struct cw_fixed_value { // exposition only
     using type = T;
-    constexpr fixed_value(type v) noexcept: data(v) { }
+    constexpr cw_fixed_value(type v) noexcept: data(v) { }
     T data;
   };
 
   template<typename T, size_t Extent>
-  struct fixed_value<T[Extent]> { // exposition only
+  struct cw_fixed_value<T[Extent]> { // exposition only
+    using type = T[Extent];
+    constexpr cw_fixed_value(T (&arr)[Extent]) noexcept: cw_fixed_value(arr, std::make_index_sequence<Extent>()) { }
+    T data[Extent];
+
   private:
     template<size_t... Idx>
-    constexpr fixed_value(T (&arr)[Extent], std::index_sequence<Idx...>) noexcept: data{arr[Idx]...} { }
-
-  public:
-    using type = T[Extent];
-    constexpr fixed_value(T (&arr)[Extent]) noexcept: fixed_value(arr, std::make_index_sequence<Extent>()) { }
-    T data[Extent];
+    constexpr cw_fixed_value(T (&arr)[Extent], std::index_sequence<Idx...>) noexcept: data{arr[Idx]...} { }
   };
 
   template<typename T, size_t Extent>
-  fixed_value(T (&)[Extent]) -> fixed_value<T[Extent]>; // exposition only
+  cw_fixed_value(T (&)[Extent]) -> cw_fixed_value<T[Extent]>; // exposition only
   template<typename T>
-  fixed_value(T) -> fixed_value<T>;                     // exposition only
+  cw_fixed_value(T) -> cw_fixed_value<T>;                     // exposition only
 
-  struct operators { // exposition only
+  struct cw_operators { // exposition only
     // unary operators
     template<constexpr_param T>
       friend constexpr auto operator+(T) noexcept -> constant_wrapper<(+T::value)> { return {}; }
@@ -163,24 +162,23 @@ namespace exposition_only {
   };
 }
 
-template<exposition_only::fixed_value Value, typename adl_type>
-struct constant_wrapper: exposition_only::operators {
-  static constexpr const auto & value = Value.data;
+template<exposition_only::cw_fixed_value X, typename adl_type>
+struct constant_wrapper: exposition_only::cw_operators {
+  static constexpr const auto & value = X.data;
   using type = constant_wrapper;
-  using value_type = typename decltype(Value)::type;
+  using value_type = typename decltype(X)::type;
 
   template<constexpr_param R>
-  constexpr auto operator=(R) const noexcept requires requires(value_type x) { x = R::value; } {
-    return constant_wrapper<[] { auto v = value; return v = R::value; }()>{};
-  }
+    constexpr auto operator=(R) const noexcept requires requires(value_type x) { x = R::value; }
+      { return constant_wrapper<[] { auto v = value; return v = R::value; }()>{}; }
 
   constexpr operator decltype(auto)() const noexcept { return value; }
-  constexpr decltype(auto) operator()() const noexcept { return value; }
+  constexpr decltype(auto) operator()() const noexcept requires (!std::invocable<value_type>) { return value; }
 
-  using exposition_only::operators::operator();
+  using exposition_only::cw_operators::operator();
 };
 
-template<exposition_only::fixed_value Value>
-constexpr auto cw = constant_wrapper<Value>{};
+template<exposition_only::cw_fixed_value X>
+  constexpr auto cw = constant_wrapper<X>{};
 
 } // namespace std
