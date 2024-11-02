@@ -273,11 +273,11 @@ int main() {
 
   std::cout << x - y << "\n";
   std::cout << std::cw<42> - std::cw<13u> << "\n";
-  auto z = std::cw<42> - std::cw<13u>;
+  [[maybe_unused]] auto z = std::cw<42> - std::cw<13u>;
   static_assert(std::is_same_v<decltype(std::cw<42> - std::cw<13u>),
                                std::constant_wrapper<29u>>);
 
-  constexpr auto q = ~std::cw<1u> >> 10;
+  [[maybe_unused]] constexpr auto q = ~std::cw<1u> >> 10;
 
   std::cout << (~std::cw<1u> >> 10) << "\n";
   std::cout << +std::cw<1u> << "\n";
@@ -294,14 +294,14 @@ int main() {
 
   {
     derived_from_constant_wrapper d;
-    auto e = d + d;
-    auto f = d + std::cw<1>;
-    auto g = std::cw<1> + d;
+    [[maybe_unused]] auto e = d + d;
+    [[maybe_unused]] auto f = d + std::cw<1>;
+    [[maybe_unused]] auto g = std::cw<1> + d;
   }
   {
     derived_from_constant_wrapper d;
     also_derived_from_constant_wrapper a;
-    auto e = d + a;
+    [[maybe_unused]] auto e = d + a;
   }
 
 #if 0

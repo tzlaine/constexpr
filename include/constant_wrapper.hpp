@@ -22,7 +22,7 @@ namespace exposition_only {
 
     using type = T;
 
-    constexpr fixed_value(type _v) noexcept: data(_v) { }
+    constexpr fixed_value(type v) noexcept: data(v) { }
   };
 
   template<typename T, size_t Extent>
@@ -33,10 +33,10 @@ namespace exposition_only {
 
   private:
     template<size_t... Idx>
-    constexpr fixed_value(T (&_in)[Extent], std::index_sequence<Idx...>) noexcept: data{_in[Idx]...} { }
+    constexpr fixed_value(T (&arr)[Extent], std::index_sequence<Idx...>) noexcept: data{arr[Idx]...} { }
 
   public:
-    constexpr fixed_value(T (&_in)[Extent]) noexcept: fixed_value(_in, std::make_index_sequence<Extent>()) { }
+    constexpr fixed_value(T (&arr)[Extent]) noexcept: fixed_value(arr, std::make_index_sequence<Extent>()) { }
   };
 
   template<typename T, size_t Extent>
@@ -108,7 +108,7 @@ namespace exposition_only {
     template<constexpr_param L, constexpr_param R>
     friend constexpr auto operator->*(L, R) noexcept -> constant_wrapper<operator->*(L::value, R::value)> { return {}; }
 
-    // access
+    // call and index
     template<constexpr_param T, constexpr_param... Args>
     constexpr auto operator()(this T, Args...) noexcept requires requires(T::value_type x, Args...) { x(Args::value...); } {
       return constant_wrapper<(T::value(Args::value...))>{};
@@ -116,7 +116,7 @@ namespace exposition_only {
     template<constexpr_param T, constexpr_param... Args>
     constexpr auto operator[](this T, Args...) noexcept -> constant_wrapper<(T::value[Args::value...])> { return {}; }
 
-    // semi modifying (needs to be done with lambda, and requires, otherwise it will give ugly error, and on on clang inline `++copy(x)` gives error)
+    // pseudo-mutators
     template<constexpr_param T>
     constexpr auto operator++(this T) noexcept requires requires(T::value_type x) { ++x; } {
       return constant_wrapper<[] { auto c = T::value; return ++c; }()>{};
