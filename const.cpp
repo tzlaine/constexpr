@@ -356,6 +356,7 @@ int main() {
     static_assert(value == 42);
   }
 
+#if SUPPORT_ARRAY_VALUES
   {
       std::cout << std::cw<"foo"> << "\n";
   }
@@ -371,4 +372,5 @@ int main() {
                     const std::constant_wrapper<
                         std::exposition_only::cw_fixed_value<int>{42}>>);
   }
+#endif
 }

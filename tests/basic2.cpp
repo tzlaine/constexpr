@@ -5,6 +5,7 @@
 
 template <typename> struct identify;
 
+#if SUPPORT_ARRAY_VALUES
 TEST_CASE("deduce string size for template overload") {
   constexpr auto x = std::cw<"hello">;
   const auto test = []<size_t N>(const char(&)[N]) -> unsigned { return N; };
@@ -12,6 +13,7 @@ TEST_CASE("deduce string size for template overload") {
   // identify<decltype(x())> y;
   REQUIRE(test(x()) == 6);
 }
+#endif
 
 TEST_CASE("int minus unsigned") {
   constexpr auto c = std::cw<42> - std::cw<13u>;

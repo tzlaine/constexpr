@@ -1,6 +1,9 @@
 #include <type_traits>
 #include <utility>
 
+
+#define SUPPORT_ARRAY_VALUES 0
+
 namespace std {
 
 namespace exposition_only {
@@ -23,6 +26,7 @@ namespace exposition_only {
     T data;
   };
 
+#if SUPPORT_ARRAY_VALUES
   template<typename T, size_t Extent>
   struct cw_fixed_value<T[Extent]> { // exposition only
     using type = T[Extent];
@@ -33,6 +37,12 @@ namespace exposition_only {
     template<size_t... Idx>
     constexpr cw_fixed_value(T (&arr)[Extent], std::index_sequence<Idx...>) noexcept: data{arr[Idx]...} { }
   };
+#else
+  template<typename T, size_t Extent>
+  struct cw_fixed_value<T[Extent]> {
+      constexpr cw_fixed_value(T (&)[Extent]) noexcept = delete;
+  };
+#endif
 
   template<typename T, size_t Extent>
   cw_fixed_value(T (&)[Extent]) -> cw_fixed_value<T[Extent]>; // exposition only
