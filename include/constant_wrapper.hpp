@@ -2,8 +2,6 @@
 #include <utility>
 
 
-#define SUPPORT_ARRAY_VALUES 0
-
 namespace std {
 
 namespace exposition_only {
@@ -12,7 +10,7 @@ namespace exposition_only {
 };
 
 template<exposition_only::cw_fixed_value X,
-         typename adl_type = typename decltype(exposition_only::cw_fixed_value(X))::type> // exposition only
+         typename = typename decltype(exposition_only::cw_fixed_value(X))::type> // exposition only
 struct constant_wrapper;
 
 template<class T>
@@ -26,7 +24,6 @@ namespace exposition_only {
     T data;
   };
 
-#if SUPPORT_ARRAY_VALUES
   template<typename T, size_t Extent>
   struct cw_fixed_value<T[Extent]> { // exposition only
     using type = T[Extent];
@@ -37,12 +34,6 @@ namespace exposition_only {
     template<size_t... Idx>
     constexpr cw_fixed_value(T (&arr)[Extent], std::index_sequence<Idx...>) noexcept: data{arr[Idx]...} { }
   };
-#else
-  template<typename T, size_t Extent>
-  struct cw_fixed_value<T[Extent]> {
-      constexpr cw_fixed_value(T (&)[Extent]) noexcept = delete;
-  };
-#endif
 
   template<typename T, size_t Extent>
   cw_fixed_value(T (&)[Extent]) -> cw_fixed_value<T[Extent]>; // exposition only
@@ -130,7 +121,7 @@ namespace exposition_only {
         { return constant_wrapper<[] { auto c = T::value; return ++c; }()>{}; }
     template<constexpr_param T>
       constexpr auto operator++(this T, int) noexcept requires requires(T::value_type x) { x++; }
-        { return constant_wrapper<[] { auto c = T::value; return ++c; }()>{}; }
+        { return constant_wrapper<[] { auto c = T::value; return c++; }()>{}; }
 
     template<constexpr_param T>
       constexpr auto operator--(this T) noexcept requires requires(T::value_type x) { --x; }
@@ -172,7 +163,7 @@ namespace exposition_only {
   };
 }
 
-template<exposition_only::cw_fixed_value X, typename adl_type>
+template<exposition_only::cw_fixed_value X, typename>
 struct constant_wrapper: exposition_only::cw_operators {
   static constexpr const auto & value = X.data;
   using type = constant_wrapper;
