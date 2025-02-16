@@ -109,8 +109,8 @@ namespace exposition_only {
     // call and index
     template<consteval_param T, consteval_param... Args>
       consteval auto operator()(this T, Args...) noexcept
-        requires requires(T::value_type x, Args...) { x(Args::value...); }
-          { return constant_wrapper<(T::value(Args::value...))>{}; }
+        requires requires(Args...) { constant_wrapper<T::value(Args::value...)>(); }
+          { return constant_wrapper<T::value(Args::value...)>{}; }
     template<consteval_param T, consteval_param... Args>
       consteval auto operator[](this T, Args...) noexcept -> constant_wrapper<(T::value[Args::value...])>
         { return {}; }
