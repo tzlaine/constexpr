@@ -10,7 +10,7 @@ namespace exposition_only {
 }
 
 template<exposition_only::cw_fixed_value X,
-         typename = typename decltype(exposition_only::cw_fixed_value(X))::type> // exposition only
+         typename unspecified = typename decltype(exposition_only::cw_fixed_value(X))::type> // exposition only
 struct constant_wrapper;
 
 template<class T>
