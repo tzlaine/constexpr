@@ -253,7 +253,7 @@ struct Test {
   constexpr bool operator==(const Test &) const = default;
 };
 
-template <auto Expected, std::constexpr_param C> void check(C x) {
+template <auto Expected, std::consteval_param C> void check(C x) {
   static_assert(std::same_as<C, std::constant_wrapper<Expected>>);
   static_assert(C::value == Expected);
   static_assert(x == Expected);

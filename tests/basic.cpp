@@ -59,7 +59,7 @@ TEST_CASE("binary ops") {
 
 TEST_CASE("construction from std::array") {
   [[maybe_unused]] constexpr auto array = std::cw<std::array<int, 2>{42, 13}>;
-  REQUIRE(array[std::cw<1>] == 13);
+  static_assert(array[std::cw<1>] == 13);
 }
 
 #if SUPPORT_ARRAY_VALUES
