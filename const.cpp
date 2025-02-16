@@ -12,6 +12,13 @@
 #include <limits>
 #include <string_view>
 
+#define TEST_FUNCTION_REF 1
+#if TEST_FUNCTION_REF
+// Can be found at:
+// https://github.com/zhihaoy/nontype_functional/blob/v0.8.1/include/std23/function_ref.h
+#include "/home/tzlaine/nontype_functional/include/std23/function_ref.h"
+#endif
+
 #define EXAMINE_STREAM_INSERTION_ERRORS 0
 
 #if !EXAMINE_STREAM_INSERTION_ERRORS
@@ -246,6 +253,7 @@ struct also_derived_from_constant_wrapper : std::constant_wrapper<2> {};
 struct Test {
   int value = 1;
 
+  constexpr Test operator()() const { return {99}; }
   constexpr Test operator()(int a, int b) const { return {a + b + value}; }
 
   constexpr Test operator[](auto... args) const { return {(value + ... + args)}; }
@@ -348,6 +356,14 @@ int main() {
 
   {
       constexpr auto c42 = std::cw<Test{42}>;
+      constexpr auto result = c42();
+      static_assert(result == std::cw<Test{99}>);
+
+      static_assert(std::cw<42>() == 42);
+  }
+
+  {
+      constexpr auto c42 = std::cw<Test{42}>;
       constexpr auto c13 = std::cw<Test{13}>;
       {
           constexpr auto result = (c42, c13);
@@ -395,6 +411,32 @@ int main() {
                     decltype(std::cw<42>),
                     const std::constant_wrapper<
                         std::exposition_only::cw_fixed_value<int>{42}>>);
+  }
+#endif
+
+#if TEST_FUNCTION_REF
+  {
+      constexpr auto cw13 = std::cw<Test{13}>;
+      {
+          cw13();
+          static_assert(std::is_invocable_v<decltype(std::cw<Test{13}>)>);
+          constexpr std23::function_ref<Test()> f_(
+              std23::nontype<std::cw<Test{13}>>);
+          f_();
+          static_assert(f_() == Test{99});
+      }
+      {
+          cw13(std::cw<1>, std::cw<2>);
+          static_assert(std::is_invocable_v<
+                        decltype(std::cw<Test{13}>),
+                        decltype(std::cw<1>),
+                        decltype(std::cw<2>)>);
+          constexpr std23::function_ref<Test(
+              decltype(std::cw<1>), decltype(std::cw<2>))>
+              f_(std23::nontype<std::cw<Test{13}>>);
+          f_(std::cw<1>, std::cw<2>);
+          static_assert(f_(std::cw<1>, std::cw<2>) == Test{16});
+      }
   }
 #endif
 }
