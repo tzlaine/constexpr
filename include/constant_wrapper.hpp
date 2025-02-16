@@ -100,10 +100,10 @@ namespace exposition_only {
       friend consteval auto operator>=(L, R) noexcept -> constant_wrapper<(L::value >= R::value)> { return {}; }
 
     template<consteval_param L, consteval_param R>
-      friend consteval auto operator,(L, R) noexcept -> constant_wrapper<operator,(L::value, R::value)>
-         { return {}; }
+      friend consteval auto operator,(L, R) noexcept -> constant_wrapper<L::value.operator,(R::value)>
+        { return {}; }
     template<consteval_param L, consteval_param R>
-      friend consteval auto operator->*(L, R) noexcept -> constant_wrapper<operator->*(L::value, R::value)>
+      friend consteval auto operator->*(L, R) noexcept -> constant_wrapper<L::value.operator->*(R::value)>
         { return {}; }
 
     // call and index

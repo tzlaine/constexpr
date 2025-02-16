@@ -246,11 +246,14 @@ struct also_derived_from_constant_wrapper : std::constant_wrapper<2> {};
 struct Test {
   int value = 1;
 
-  constexpr int operator()(int a, int b) const { return a + b + value; }
+  constexpr Test operator()(int a, int b) const { return {a + b + value}; }
 
-  constexpr int operator[](auto... args) const { return (value + ... + args); }
+  constexpr Test operator[](auto... args) const { return {(value + ... + args)}; }
 
   constexpr bool operator==(const Test &) const = default;
+
+  constexpr Test operator,(Test) const { return {99}; }
+  constexpr Test operator->*(Test) const { return {99}; }
 };
 
 template <auto Expected, std::consteval_param C> void check(C x) {
@@ -341,6 +344,23 @@ int main() {
 
   {
     check<Test{}>(std::cw<Test{}>);
+  }
+
+  {
+      constexpr auto c42 = std::cw<Test{42}>;
+      constexpr auto c13 = std::cw<Test{13}>;
+      {
+          constexpr auto result = (c42, c13);
+          static_assert(result == std::cw<Test{99}>);
+      }
+      {
+          constexpr auto result = (std::cw<42>, c13);
+          static_assert(result == c13);
+      }
+      {
+          constexpr auto result = c42->*c13;
+          static_assert(result == std::cw<Test{99}>);
+      }
   }
 
 #else
