@@ -25,7 +25,7 @@ TEST_CASE("binary ops") {
 }
 
 TEST_CASE("construction from std::array") {
-  constexpr auto array = std::cw<std::array<int, 2>{42, 13}>;
+  [[maybe_unused]] constexpr auto array = std::cw<std::array<int, 2>{42, 13}>;
   REQUIRE(array[std::cw<1>] == 13);
 }
 

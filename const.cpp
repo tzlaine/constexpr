@@ -1,4 +1,8 @@
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#pragma GCC diagnostic ignored "-Wshadow"
 #include <boost/hana.hpp>
+#pragma GCC diagnostic pop
 
 #include <algorithm>
 #include <array>
@@ -134,7 +138,7 @@ template <char... Chars> constexpr auto operator"" _cw() {
     // This is really here just for documentation purposes right now,
     // because this is what is proposed in the paper.  No implementation
     // has constexpr from_chars() at the time of this writing.
-    constexpr auto x = [] {
+    constexpr auto x_ = [] {
       char chars[] = {Chars...};
       const auto f = std::begin(chars), l = std::end(chars);
       long long x{};
@@ -144,7 +148,7 @@ template <char... Chars> constexpr auto operator"" _cw() {
       return x;
     }();
 
-    return constant_wrapper<x>{};
+    return constant_wrapper<x_>{};
 #else
     constexpr auto x = detail::ic_parse<long long, Chars...>();
     return constant_wrapper<x>{};
@@ -293,15 +297,15 @@ int main() {
   std::cout << f << "\n";
 
   {
-    derived_from_constant_wrapper d;
-    [[maybe_unused]] auto e = d + d;
-    [[maybe_unused]] auto f = d + std::cw<1>;
-    [[maybe_unused]] auto g = std::cw<1> + d;
+    derived_from_constant_wrapper g;
+    [[maybe_unused]] auto h = g + g;
+    [[maybe_unused]] auto j = g + std::cw<1>;
+    [[maybe_unused]] auto k = std::cw<1> + g;
   }
   {
-    derived_from_constant_wrapper d;
+    derived_from_constant_wrapper g;
     also_derived_from_constant_wrapper a;
-    [[maybe_unused]] auto e = d + a;
+    [[maybe_unused]] auto h = g + a;
   }
 
 #if 0
@@ -348,8 +352,8 @@ int main() {
   {
     using namespace std::my_literals;
 
-    constexpr auto x = -1_cw + std::cw<(-1)>;
-    static_assert(x == std::cw<(-2)>);
+    constexpr auto x_ = -1_cw + std::cw<(-1)>;
+    static_assert(x_ == std::cw<(-2)>);
   }
   {
     constexpr int value = std::cw<42>();
