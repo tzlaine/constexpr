@@ -1,6 +1,7 @@
 #include "support.hpp"
 #include <catch2/catch_test_macros.hpp>
 #include <constant_wrapper.hpp>
+#include <iostream>
 #include <sstream>
 
 struct nothing {};
@@ -13,6 +14,38 @@ TEST_CASE("basic string type") {
   REQUIRE(type_of<hello> == type<std::constant_wrapper<"hello">>);
 }
 #endif
+
+  constexpr auto initial_phase(auto quantity_1, auto quantity_2) {
+    return quantity_1 + quantity_2;
+  }
+
+  constexpr auto middle_phase(auto tbd) {
+    return tbd;
+  }
+
+  void final_phase(auto gathered, auto available) {
+    if constexpr (gathered == available)
+      std::cout << "Profit!\n";
+  }
+
+  void impeccable_underground_planning() {
+    constexpr auto gathered_quantity = middle_phase(initial_phase(std::cw<42>, std::cw<13>));
+    static_assert(gathered_quantity == 55);
+    constexpr auto all_available = std::cw<55>;
+    final_phase(gathered_quantity, all_available);
+  }
+
+  // ill-formed
+  // void deeply_flawed_underground_planning() {
+  //   constexpr auto gathered_quantity = middle_phase(initial_phase(42, 13));
+  //   constexpr auto all_available = 55;
+  //   final_phase(gathered_quantity, all_available);
+  // }
+
+TEST_CASE("wording example") {
+  impeccable_underground_planning();
+  // deeply_flawed_underground_planning(); // ill-formed
+}
 
 TEST_CASE("unary ops") {
   constexpr auto minus = -std::cw<42>;
