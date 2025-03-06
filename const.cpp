@@ -264,7 +264,7 @@ struct Test {
   constexpr Test operator->*(Test) const { return {99}; }
 };
 
-template <auto Expected, std::consteval_param C> void check(C x) {
+template <auto Expected, std::constexpr_param C> void check(C x) {
   static_assert(std::same_as<C, std::constant_wrapper<Expected>>);
   static_assert(C::value == Expected);
   static_assert(x == Expected);
@@ -365,14 +365,6 @@ int main() {
   {
       constexpr auto c42 = std::cw<Test{42}>;
       constexpr auto c13 = std::cw<Test{13}>;
-      {
-          constexpr auto result = (c42, c13);
-          static_assert(result == std::cw<Test{99}>);
-      }
-      {
-          constexpr auto result = (std::cw<42>, c13);
-          static_assert(result == c13);
-      }
       {
           constexpr auto result = c42->*c13;
           static_assert(result == std::cw<Test{99}>);
