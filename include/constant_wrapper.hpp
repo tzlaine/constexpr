@@ -172,7 +172,7 @@ struct constant_wrapper: exposition_only::cw_operators {
       { return constant_wrapper<[] { auto v = value; return v = R::value; }()>{}; }
 
   constexpr operator decltype(auto)() const noexcept { return value; }
-  constexpr decltype(auto) operator()() const noexcept requires (!std::invocable<value_type>) { return value; }
+  constexpr decltype(auto) operator()() const noexcept requires (!std::invocable<const value_type&>) { return value; }
 
   using exposition_only::cw_operators::operator();
 };
