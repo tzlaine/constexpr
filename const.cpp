@@ -358,8 +358,6 @@ int main() {
       constexpr auto c42 = std::cw<Test{42}>;
       constexpr auto result = c42();
       static_assert(result == std::cw<Test{99}>);
-
-      static_assert(std::cw<42>() == 42);
   }
 
   {
@@ -382,10 +380,6 @@ int main() {
 
     constexpr auto x_ = -1_cw + std::cw<(-1)>;
     static_assert(x_ == std::cw<(-2)>);
-  }
-  {
-    constexpr int value = std::cw<42>();
-    static_assert(value == 42);
   }
 
 #if SUPPORT_ARRAY_VALUES

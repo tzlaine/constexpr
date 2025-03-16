@@ -102,6 +102,8 @@ namespace exposition_only {
       friend constexpr auto operator>=(L, R) noexcept -> constant_wrapper<(L::value >= R::value)> { return {}; }
 
     template<constexpr_param L, constexpr_param R>
+      friend constexpr auto operator,(L, R) noexcept = delete;
+    template<constexpr_param L, constexpr_param R>
       friend constexpr auto operator->*(L, R) noexcept -> constant_wrapper<L::value->*R::value> { return {}; }
 
     // call and index
@@ -172,9 +174,6 @@ struct constant_wrapper: exposition_only::cw_operators {
       { return constant_wrapper<[] { auto v = value; return v = R::value; }()>{}; }
 
   constexpr operator decltype(auto)() const noexcept { return value; }
-  constexpr decltype(auto) operator()() const noexcept requires (!std::invocable<const value_type&>) { return value; }
-
-  using exposition_only::cw_operators::operator();
 };
 
 template<exposition_only::cw_fixed_value X>
