@@ -99,8 +99,26 @@ TEST_CASE("array") {
 }
 #endif
 
+struct self_modifying_type
+{
+    constexpr self_modifying_type() = default;
+
+    template<typename T>
+    constexpr auto operator=(T) const noexcept -> std::constant_wrapper<T::value> { return {}; }
+
+    constexpr auto operator++() const { return std::cw<2>; }
+
+    template<typename T>
+    constexpr auto operator+=(T x) const { return std::cw<1> + x; }
+
+    constexpr auto operator--() const { return std::cw<0>; }
+
+    template<typename T>
+    constexpr auto operator-=(T x) const { return std::cw<1> - x; }
+};
+
 TEST_CASE("semi modifying ops") {
-  constexpr auto x = std::cw<1>;
+  constexpr auto x = self_modifying_type{};
   constexpr auto dec = --x;
   constexpr auto inc = ++x;
   REQUIRE(type_of<dec> == type<std::constant_wrapper<0>>);
@@ -108,7 +126,7 @@ TEST_CASE("semi modifying ops") {
 }
 
 TEST_CASE("semi modifying ops binary") {
-  constexpr auto x = std::cw<1>;
+  constexpr auto x = self_modifying_type{};
   constexpr auto dec = x -= std::cw<2>;
   constexpr auto inc = x += std::cw<2>;
   REQUIRE(type_of<dec> == type<std::constant_wrapper<(-1)>>);
@@ -116,7 +134,7 @@ TEST_CASE("semi modifying ops binary") {
 }
 
 TEST_CASE("semi modifying ops assignment") {
-  constexpr auto x = std::cw<1>;
+  constexpr auto x = self_modifying_type{};
   constexpr auto assigned = x = std::cw<2>;
   REQUIRE(type_of<assigned> == type<std::constant_wrapper<(2)>>);
 }

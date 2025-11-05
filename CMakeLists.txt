@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.30)
+cmake_minimum_required(VERSION 3.25)
 
 project(constant_wrapper VERSION 1.0 LANGUAGES CXX)
 
@@ -37,5 +37,5 @@ target_compile_features(constant_wrapper INTERFACE cxx_std_23)
 add_library(boost INTERFACE)
 target_include_directories(boost INTERFACE ${boost_headers_DIR})
 
-add_executable(original const.cpp)
-target_link_libraries(original constant_wrapper boost)
+#add_executable(original const.cpp)
+#target_link_libraries(original constant_wrapper boost)

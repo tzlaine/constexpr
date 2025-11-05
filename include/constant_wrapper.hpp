@@ -116,50 +116,35 @@ namespace exposition_only {
         { return {}; }
 
     // pseudo-mutators
-    template<constexpr_param T>
-      constexpr auto operator++(this T) noexcept requires requires(T::value_type x) { ++x; }
-        { return constant_wrapper<[] { auto c = T::value; return ++c; }()>{}; }
-    template<constexpr_param T>
-      constexpr auto operator++(this T, int) noexcept requires requires(T::value_type x) { x++; }
-        { return constant_wrapper<[] { auto c = T::value; return c++; }()>{}; }
+    template <constexpr_param T>
+      constexpr auto operator++(this T) noexcept -> constant_wrapper<++Y> { return {}; }
+    template <constexpr_param T>
+      constexpr auto operator++(this T, int) noexcept -> constant_wrapper<Y++> { return {}; }
+    template <constexpr_param T>
+      constexpr auto operator--(this T) noexcept -> constant_wrapper<--Y> { return {}; }
+    template <constexpr_param T>
+      constexpr auto operator--(this T, int) noexcept -> constant_wrapper<Y--> { return {}; }
 
-    template<constexpr_param T>
-      constexpr auto operator--(this T) noexcept requires requires(T::value_type x) { --x; }
-        { return constant_wrapper<[] { auto c = T::value; return --c; }()>{}; }
-    template<constexpr_param T>
-      constexpr auto operator--(this T, int) noexcept requires requires(T::value_type x) { x--; }
-        { return constant_wrapper<[] { auto c = T::value; return c--; }()>{}; }
-
-    template<constexpr_param T, constexpr_param R>
-      constexpr auto operator+=(this T, R) noexcept requires requires(T::value_type x) { x += R::value; }
-        { return constant_wrapper<[] { auto v = T::value; return v += R::value; }()>{}; }
-    template<constexpr_param T, constexpr_param R>
-      constexpr auto operator-=(this T, R) noexcept requires requires(T::value_type x) { x -= R::value; }
-        { return constant_wrapper<[] { auto v = T::value; return v -= R::value; }()>{}; }
-    template<constexpr_param T, constexpr_param R>
-      constexpr auto operator*=(this T, R) noexcept requires requires(T::value_type x) { x *= R::value; }
-        { return constant_wrapper<[] { auto v = T::value; return v *= R::value; }()>{}; }
-    template<constexpr_param T, constexpr_param R>
-      constexpr auto operator/=(this T, R) noexcept requires requires(T::value_type x) { x /= R::value; }
-        { return constant_wrapper<[] { auto v = T::value; return v /= R::value; }()>{}; }
-    template<constexpr_param T, constexpr_param R>
-      constexpr auto operator%=(this T, R) noexcept requires requires(T::value_type x) { x %= R::value; }
-        { return constant_wrapper<[] { auto v = T::value; return v %= R::value; }()>{}; }
-    template<constexpr_param T, constexpr_param R>
-      constexpr auto operator&=(this T, R) noexcept requires requires(T::value_type x) { x &= R::value; }
-        { return constant_wrapper<[] { auto v = T::value; return v &= R::value; }()>{}; }
-    template<constexpr_param T, constexpr_param R>
-      constexpr auto operator|=(this T, R) noexcept requires requires(T::value_type x) { x |= R::value; }
-        { return constant_wrapper<[] { auto v = T::value; return v |= R::value; }()>{}; }
-    template<constexpr_param T, constexpr_param R>
-      constexpr auto operator^=(this T, R) noexcept requires requires(T::value_type x) { x ^= R::value; }
-        { return constant_wrapper<[] { auto v = T::value; return v ^= R::value; }()>{}; }
-    template<constexpr_param T, constexpr_param R>
-      constexpr auto operator<<=(this T, R) noexcept requires requires(T::value_type x) { x <<= R::value; }
-        { return constant_wrapper<[] { auto v = T::value; return v <<= R::value; }()>{}; }
-    template<constexpr_param T, constexpr_param R>
-      constexpr auto operator>>=(this T, R) noexcept requires requires(T::value_type x) { x >>= R::value; }
-        { return constant_wrapper<[] { auto v = T::value; return v >>= R::value; }()>{}; }
+    template <constexpr_param U, constexpr_param V>
+      friend constexpr auto operator+=(U, V) noexcept -> constant_wrapper<(U::value += V::value)> { return {}; }
+    template <constexpr_param U, constexpr_param V>
+      friend constexpr auto operator-=(U, V) noexcept -> constant_wrapper<(U::value -= V::value)> { return {}; }
+    template <constexpr_param U, constexpr_param V>
+      friend constexpr auto operator*=(U, V) noexcept -> constant_wrapper<(U::value *= V::value)> { return {}; }
+    template <constexpr_param U, constexpr_param V>
+      friend constexpr auto operator/=(U, V) noexcept -> constant_wrapper<(U::value /= V::value)> { return {}; }
+    template <constexpr_param U, constexpr_param V>
+      friend constexpr auto operator%=(U, V) noexcept -> constant_wrapper<(U::value %= V::value)> { return {}; }
+    template <constexpr_param U, constexpr_param V>
+      friend constexpr auto operator&=(U, V) noexcept -> constant_wrapper<(U::value &= V::value)> { return {}; }
+    template <constexpr_param U, constexpr_param V>
+      friend constexpr auto operator|=(U, V) noexcept -> constant_wrapper<(U::value |= V::value)> { return {}; }
+    template <constexpr_param U, constexpr_param V>
+      friend constexpr auto operator^=(U, V) noexcept -> constant_wrapper<(U::value ^= V::value)> { return {}; }
+    template <constexpr_param U, constexpr_param V>
+      friend constexpr auto operator<<=(U, V) noexcept -> constant_wrapper<(U::value <<= V::value)> { return {}; }
+    template <constexpr_param U, constexpr_param V>
+      friend constexpr auto operator>>=(U, V) noexcept -> constant_wrapper<(U::value >>= V::value)> { return {}; }
   };
 }
 
@@ -169,9 +154,8 @@ struct constant_wrapper: exposition_only::cw_operators {
   using type = constant_wrapper;
   using value_type = typename decltype(X)::type;
 
-  template<constexpr_param R>
-    constexpr auto operator=(R) const noexcept requires requires(value_type x) { x = R::value; }
-      { return constant_wrapper<[] { auto v = value; return v = R::value; }()>{}; }
+  template <constexpr_param R>
+    constexpr auto operator=(R) const noexcept -> constant_wrapper<X = R::value> { return {}; }
 
   constexpr operator decltype(auto)() const noexcept { return value; }
 };
